@@ -84,33 +84,44 @@ class Poem(object):
         self.score = score
 
     @classmethod
-    def from_comment(cls, comment):
+    def from_comment(cls, comment, is_submission=False):
         timestamp = datetime.datetime.utcfromtimestamp(comment.created_utc)
         link = comment.permalink
 
-        submission, parent_comments = get_all_parents(comment)
-
-        content = md2latex(comment.body)
-        submission_user = username_escape(submission.author)
-        submission_content = md2latex(submission.selftext)
-        submission_url = None
-        if not submission.is_self:
-            submission_url = submission.url
-
-        # workaround for 2013-12-18 21:14:00 post
-        submission_content = submission_content.replace("\\($\\)", "\$")
-
-        submission_title = title_escape(submission.title)
         parents = []
-        for p in parent_comments:
-            parents.append({"author": username_escape(p.author), "body": md2latex(p.body),
-                            "orig_body": p.body, "link": p.permalink, "timestamp": p.created_utc,
-                            "gold": p.gilded, "score": p.score})
+        submission_url = None
+        if not is_submission:
+            submission, parent_comments = get_all_parents(comment)
+            for p in parent_comments:
+                parents.append({"author": username_escape(p.author), "body": md2latex(p.body),
+                                "orig_body": p.body, "link": p.permalink, "timestamp": p.created_utc,
+                                "gold": p.gilded, "score": p.score})
+
+            submission_user = username_escape(submission.author)
+            submission_content = md2latex(submission.selftext)
+
+            if not submission.is_self:
+                submission_url = submission.url
+
+            # workaround for 2013-12-18 21:14:00 post
+            submission_content = submission_content.replace("\\($\\)", "\$")
+
+            submission_title = title_escape(submission.title)
+            content = md2latex(comment.body)
+        else:
+            submission_title = title_escape(comment.title)
+            submission_content = ""
+            submission_user = username_escape(comment.author)
+            if not comment.is_self:
+                submission_url = comment.url
+            content = md2latex(comment.selftext)
 
         noimg = False
         imgfilename = None
         return cls(timestamp, link, content, submission_user, submission_content, submission_url, submission_title,
-                   parents, noimg, imgfilename, comment.body, submission.selftext, comment.gilded, comment.score)
+                   parents, noimg, imgfilename, comment.body if not is_submission else comment.selftext,
+                   submission.selftext if not is_submission else "",
+                   comment.gilded, comment.score)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -407,6 +418,18 @@ def update_poems(poems):
     print()
     return poems
 
+
+def add_submission(poems, link):
+    """Add a submission (currently not running automatically because most submissions aren't poems)"""
+    if link in (p.link for p in poems):
+        print("submission already stored")
+        return
+    submission = r.get_submission(link)
+    time = datetime.datetime.utcfromtimestamp(submission.created_utc)
+    for i in range(len(poems)-1):
+        if poems[i].datetime > time > poems[i+1].datetime:
+            poems.insert(i+1, Poem.from_comment(submission, is_submission=True))
+            return
 
 print("loading stored poems")
 poems = load_poems_json()

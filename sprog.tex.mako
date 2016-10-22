@@ -90,7 +90,7 @@ ${len(poems)} Poems
 Most gilded:
 \begin{enumerate}
 % for p in sorted(poems, key=lambda x: x.gold or 0, reverse=True)[:10]:
-\item \scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,${p.gold}$ \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
+\item \scalerel*{\includegraphics{../gold.png}}{B}\makebox[1cm]{$\,\times\,${p.gold}$\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
 \end{document}
