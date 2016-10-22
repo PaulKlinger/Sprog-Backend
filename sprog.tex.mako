@@ -53,7 +53,7 @@
         % if poem.submission_url is not None:
         \href{${poem.submission_url}}{[Link]}
             % if poem.imgfilename:
-                \includegraphics[keepaspectratio,max width=0.5\textwidth, height=0.5\textwidth]{"${poem.imgfilename}"}
+                \includegraphics[keepaspectratio,max width=0.5\textwidth, max height=0.5\textwidth]{"${poem.imgfilename}"}
             % endif
         % else:
         ${poem.submission_content}
