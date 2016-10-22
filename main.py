@@ -5,7 +5,6 @@ import subprocess
 import datetime
 import os
 import pypandoc
-import pickle
 import requests
 import shutil
 import re
@@ -308,8 +307,26 @@ def process_latex(latex):
     return platex
 
 
+def make_snippet(tex):
+    """"strips out newlines and links (used for top gilded list in statistics)"""
+
+    tex = tex.replace(r"\\", " ").replace("\r\n", " ")
+    tex = re.sub(r"\\href\{.*?\}\{(.*?)\}", r"\1", tex, re.MULTILINE)
+    return " ".join(tex.split(" ")[:6])
+
+
+def id_from_link(link):
+    """create a unique (hopefully) from permalink (for latex labels)"""
+    allowedchars = "abcdefghijklmnopqrstuvwxyz"
+    allowedchars += allowedchars.upper()
+    allowedchars += "0123456789"
+    return "".join(c for c in link if c in allowedchars)[-10:]
+
+
 def make_compile_latex(poems):
-    latex = template.render_unicode(poems=poems, user_name=user_name.replace("_", "\\_"))
+    latex = template.render_unicode(poems=poems,
+                                    make_snippet=make_snippet, id_from_link=id_from_link,
+                                    user_name=user_name.replace("_", "\\_"))
     latex = process_latex(latex)
 
     with open(os.path.join(tmpdir, latexfile), "wb") as f:

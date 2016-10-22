@@ -1,5 +1,5 @@
 \documentclass{report}
-\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
 \usepackage[a4paper,top=3cm,bottom=4cm]{geometry}
 \usepackage[many]{tcolorbox}
 \usepackage{verse}
@@ -7,6 +7,7 @@
 \usepackage[normalem]{ulem}
 \usepackage{graphicx}
 \usepackage[export]{adjustbox}
+\usepackage{scalerel}
 
 \usepackage{longtable,booktabs}
 \usepackage{fancyvrb}
@@ -47,7 +48,7 @@
     \chapter{${poem.datetime.year}}
     %endif
     \section*{\#${len(poems)-i} -- ${poem.submission_title}\\\
-                ${poem.datetime.strftime("%Y-%m-%d %H:%M:%S")}}
+                ${poem.datetime.strftime("%Y-%m-%d %H:%M:%S")}}\label{${id_from_link(poem.link)}}
     \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=/u/${poem.submission_user},breakable]
         % if poem.submission_url is not None:
         \href{${poem.submission_url}}{[Link]}
@@ -76,8 +77,14 @@
 ${len(poems)} Poems
 \begin{itemize}
 \renewcommand{\labelitemi}{\dots}
-\item containing an average of ${"%.1d".format(sum(len(poem.content.split(" ")) for poem in poems)/len(poems))} words.
+\item containing an average of ${"{:.2f}".format(sum(len(poem.content.split(" ")) for poem in poems)/len(poems))} words.
 \item totalling ${sum(len(poem.content.split(" ")) for poem in poems)} words.
-\item which earned a total of ${sum(poem.gold or 0 for poem in poems)} months of reddit gold.
+\item which earned a total of ${sum(poem.gold or 0 for poem in poems)} months of Reddit gold.
 \end{itemize}
+Most gilded:
+\begin{enumerate}
+% for p in sorted(poems, key=lambda x: x.gold or 0, reverse=True)[:10]:
+\item \scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,${p.gold}$ \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
+% endfor
+\end{enumerate}
 \end{document}
