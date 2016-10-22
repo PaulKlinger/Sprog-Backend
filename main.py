@@ -9,6 +9,7 @@ import requests
 import shutil
 import re
 import json
+import statistics
 
 user_name = "Poem_for_your_sprog"
 template = Template(filename="sprog.tex.mako")
@@ -66,7 +67,7 @@ def md2latex(md):
 class Poem(object):
     def __init__(self, timestamp, link, content,
                  submission_user, submission_content, submission_url, submission_title,
-                 parents, noimg, imgfilename, orig_content, orig_submission_content, gold):
+                 parents, noimg, imgfilename, orig_content, orig_submission_content, gold, score):
         self.datetime = timestamp
         self.link = link
         self.content = content
@@ -80,10 +81,11 @@ class Poem(object):
         self.orig_content = orig_content
         self.orig_submission_content = orig_submission_content
         self.gold = gold
+        self.score = score
 
     @classmethod
     def from_comment(cls, comment):
-        timestamp = datetime.datetime.fromtimestamp(comment.created_utc)
+        timestamp = datetime.datetime.utcfromtimestamp(comment.created_utc)
         link = comment.permalink
 
         submission, parent_comments = get_all_parents(comment)
@@ -102,12 +104,13 @@ class Poem(object):
         parents = []
         for p in parent_comments:
             parents.append({"author": username_escape(p.author), "body": md2latex(p.body),
-                            "orig_body": p.body, "link": p.permalink})
+                            "orig_body": p.body, "link": p.permalink, "timestamp": p.created_utc,
+                            "gold": p.gilded, "score": p.score})
 
         noimg = False
         imgfilename = None
         return cls(timestamp, link, content, submission_user, submission_content, submission_url, submission_title,
-                   parents, noimg, imgfilename, comment.body, submission.selftext, comment.gilded)
+                   parents, noimg, imgfilename, comment.body, submission.selftext, comment.gilded, comment.score)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -135,6 +138,7 @@ def get_poems(poems=None):
     print()
     return newpoems + poems
 
+
 def save_poems_json(poems):
     struct = []
     for p in poems:
@@ -151,7 +155,8 @@ def save_poems_json(poems):
             "parents": p.parents,
             "orig_content": p.orig_content,
             "orig_submission_content": p.orig_submission_content,
-            "gold": p.gold
+            "gold": p.gold,
+            "score": p.score,
         })
     with open("poems.json", "w") as f:
         f.write(json.dumps(struct, sort_keys=True, indent=4))
@@ -177,7 +182,8 @@ def load_poems_json():
                         imgfilename=p["imgfilename"],
                         orig_content=p.get("orig_content", None),
                         orig_submission_content=p.get("orig_submission_content", None),
-                        gold=p.get("gold", None)
+                        gold=p.get("gold", None),
+                        score=p.get("score", None)
                     ))
     except FileNotFoundError:
         pass
@@ -323,9 +329,33 @@ def id_from_link(link):
     return "".join(c for c in link if c in allowedchars)[-10:]
 
 
+def prettyp_seconds(seconds):
+    out = []
+    if seconds > 60*60:
+        out.append("{:.0f}h".format(seconds // (60 * 60)))
+        seconds %= (60*60)
+    if seconds > 60:
+        out.append("{:.0f}m".format(seconds // 60))
+        seconds %= 60
+    if seconds > 0:
+        out.append("{:.0f}s".format(seconds))
+    return " ".join(out)
+
+
+def posting_time_stats(poems):
+    diffs = [((p.datetime - datetime.datetime.utcfromtimestamp(p.parents[-1]["timestamp"])).total_seconds(),
+              id_from_link(p.link))
+             for p in poems
+             if p.parents and p.parents[-1].get("timestamp", None)]
+    med_seconds = statistics.median(map(lambda x: x[0], diffs))
+    min_seconds, min_link= min(diffs, key=lambda x: x[0])
+    return prettyp_seconds(med_seconds), prettyp_seconds(min_seconds), min_link
+
+
 def make_compile_latex(poems):
     latex = template.render_unicode(poems=poems,
                                     make_snippet=make_snippet, id_from_link=id_from_link,
+                                    posting_time_stats=posting_time_stats, statistics=statistics,
                                     user_name=user_name.replace("_", "\\_"))
     latex = process_latex(latex)
 
@@ -346,15 +376,28 @@ def create_pdf(poems):
     return poems
 
 
+def get_comment_from_link(link):
+    submission = r.get_submission(link)
+    c = submission.comments[0]
+    return c
+
+
 def update_poems(poems):
     for p in poems:
         print(".", end="", flush=True)
         if (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=14):
             break
         try:
-            submission = r.get_submission(p.link)
-            c = submission.comments[0]
+            c = get_comment_from_link(p.link)
             p.gold = c.gilded
+            p.score = c.score
+            if False:  # Don't update comments for now, takes a long time and info is not used.
+                for parent in p.parents:
+                    if "link" in parent and parent["link"]:
+                        parent_comment = get_comment_from_link(parent["link"])
+                        parent["score"] = parent_comment.score
+                        parent["gold"] = parent_comment.gilded
+
         except Exception as e:
             print("-------")
             print("Error while updating poem")

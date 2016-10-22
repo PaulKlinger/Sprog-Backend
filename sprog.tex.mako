@@ -66,7 +66,9 @@
         \end{tcolorbox}
     % endfor
 
-    \begin{tcolorbox}[colframe=black!40!black,${"breakable," if len([1 for c in poem.content if c == "\n"])>35 else ""}title=/u/${user_name} \href{${poem.link}}{[Link]}]
+    \begin{tcolorbox}[colframe=black!40!black,${"breakable," if len([1 for c in poem.content if c == "\n"])>35 else ""}
+                      title={/u/${user_name} \href{${poem.link}}{[Link]} %
+                      ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             \begin{verse}
                 ${poem.content}
             \end{verse}
@@ -79,6 +81,10 @@ ${len(poems)} Poems
 \renewcommand{\labelitemi}{\dots}
 \item containing an average of ${"{:.2f}".format(sum(len(poem.content.split(" ")) for poem in poems)/len(poems))} words.
 \item totalling ${sum(len(poem.content.split(" ")) for poem in poems)} words.
+<% median, min, min_link = posting_time_stats(poems) %>
+\item posted a median of ${median} after the parent comment.
+\item the fastest of which was posted \hyperref[${min_link}]{${min}} after the parent comment.
+\item at an average depth of ${"{:.2f}".format(statistics.mean([float(len(p.parents)) for p in poems]))}.
 \item which earned a total of ${sum(poem.gold or 0 for poem in poems)} months of Reddit gold.
 \end{itemize}
 Most gilded:
