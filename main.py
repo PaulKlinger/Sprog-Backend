@@ -329,7 +329,9 @@ def make_snippet(tex):
 
     tex = tex.replace(r"\\", " ").replace("\r\n", " ")
     tex = re.sub(r"\\href\{.*?\}\{(.*?)\}", r"\1", tex, re.MULTILINE)
-    return " ".join(tex.split(" ")[:6])
+    snip = " ".join(tex.split(" ")[:6])
+    snip += "}" * sum(1 if c == "{" else -1 if c == "}" else 0 for c in snip)
+    return snip
 
 
 def id_from_link(link):
@@ -441,3 +443,13 @@ print("creating pdf")
 poems = create_pdf(poems)
 print("saving poems")
 save_poems_json(poems)
+
+
+# ----------------------------------
+# useful snippets
+# ----------------------------------
+
+# # remove double spacing except between verses
+# # (sprog only used this on early poems so this doesn't need to run all the time)
+# for p in poems[-142:]:
+#     p.content = re.sub("(?:(?<!})\r\n\r\n(?!\\\\emph))|(?:(?<=})\r\n\r\n(?=\\\\emph))", r"\\\\", p.content)

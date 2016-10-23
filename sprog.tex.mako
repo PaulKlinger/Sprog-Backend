@@ -26,6 +26,14 @@
 %%%%%%%%%%%%%
 
 \usepackage[hyperfootnotes=false]{hyperref} % needs to be loaded last
+\usepackage{xcolor}
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+\definecolor{babyblue}{rgb}{0.54, 0.81, 0.94}
 
 \newcommand{\attrib}[1]{%
 \nopagebreak{\raggedleft\footnotesize #1\par}}
@@ -67,7 +75,7 @@
     % endfor
 
     \begin{tcolorbox}[colframe=black!40!black,${"breakable," if len([1 for c in poem.content if c == "\n"])>35 else ""}
-                      title={/u/${user_name} \href{${poem.link}}{[Link]} %
+                      title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             \begin{verse}
                 ${poem.content}
@@ -76,7 +84,7 @@
 % endfor
 \chapter{Statistics}
 \large
-${len(poems)} Poems
+\section*{${len(poems)} Poems}
 \begin{itemize}
 \renewcommand{\labelitemi}{\dots}
 \item containing an average of ${"{:.2f}".format(sum(len(poem.content.split(" ")) for poem in poems)/len(poems))} words.
@@ -85,12 +93,22 @@ ${len(poems)} Poems
 \item posted a median of ${median} after the parent comment.
 \item the fastest of which was posted \hyperref[${min_link}]{${min}} after the parent comment.
 \item at an average depth of ${"{:.2f}".format(statistics.mean([float(len(p.parents)) for p in poems]))}.
-\item which earned a total of ${sum(poem.gold or 0 for poem in poems)} months of Reddit gold.
+\item which received a total of ${sum(poem.gold or 0 for poem in poems)} months of Reddit gold.
+\item with a median score of ${statistics.median(p.score for p in poems if p.score is not None)} karma.
+\item with a combined score of ${sum(p.score or 0 for p in poems)} karma.
 \end{itemize}
-Most gilded:
+
+\section*{Most gilded:}
 \begin{enumerate}
 % for p in sorted(poems, key=lambda x: x.gold or 0, reverse=True)[:10]:
 \item \scalerel*{\includegraphics{../gold.png}}{B}\makebox[1cm]{$\,\times\,${p.gold}$\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
+% endfor
+\end{enumerate}
+
+\section*{Most karma:}
+\begin{enumerate}
+% for p in sorted(poems, key=lambda x: x.score or 0, reverse=True)[:10]:
+\item \textbf{${p.score}} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
 \end{document}
