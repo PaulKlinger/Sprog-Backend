@@ -169,6 +169,7 @@ def save_poems_json(poems):
             "gold": p.gold,
             "score": p.score,
         })
+    shutil.copy("poems.json", "poems_prev.json")
     with open("poems.json", "w") as f:
         f.write(json.dumps(struct, sort_keys=True, indent=4))
 
