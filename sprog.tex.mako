@@ -88,14 +88,14 @@
 \begin{itemize}
 \renewcommand{\labelitemi}{\dots}
 \item containing an average of ${"{:.2f}".format(sum(len(poem.content.split(" ")) for poem in poems)/len(poems))} words.
-\item totalling ${sum(len(poem.content.split(" ")) for poem in poems)} words.
+\item totalling ${"{:,}".format(sum(len(poem.content.split(" ")) for poem in poems))} words.
 <% median, min, min_link = posting_time_stats(poems) %>
 \item posted a median of ${median} after the parent comment.
 \item the fastest of which was posted \hyperref[${min_link}]{${min}} after the parent comment.
 \item at an average depth of ${"{:.2f}".format(statistics.mean([float(len(p.parents)) for p in poems]))}.
-\item which received a total of ${sum(poem.gold or 0 for poem in poems)} months of Reddit gold.
-\item with a median score of ${statistics.median(p.score for p in poems if p.score is not None)} karma.
-\item with a combined score of ${sum(p.score or 0 for p in poems)} karma.
+\item which received a total of ${"{:,}".format(sum(poem.gold or 0 for poem in poems))} months of Reddit gold.
+\item with a median score of ${"{:,.0f}".format(statistics.median(p.score for p in poems if p.score is not None))} karma.
+\item with a combined score of ${"{:,}".format(sum(p.score or 0 for p in poems))} karma.
 \end{itemize}
 
 \section*{Most gilded:}
