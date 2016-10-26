@@ -409,15 +409,14 @@ def add_submission(poems, link):
 
 print("loading stored poems")
 poems = load_poems_json()
-
-# print("updating recent poems")
-# poems = update_poems(poems)
-# print("getting new poems")
-# poems = get_poems(poems)
+print("updating recent poems")
+poems = update_poems(poems)
+print("getting new poems")
+poems = get_poems(poems)
 print("creating pdf")
 poems = create_pdf(poems)
-# print("saving poems")
-# save_poems_json(poems)
+print("saving poems")
+save_poems_json(poems)
 
 
 # ----------------------------------
