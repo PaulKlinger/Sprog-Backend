@@ -338,7 +338,7 @@ def process_latex(latex):
     # format urls
     ########
     # this turns urls into links but also allows latex to put linebreaks in them
-    platex = re.sub(r"\s(https?://\S+/(?:[\w/.-?_]|\\_)+)", r"\url{\1}", platex)
+    platex = re.sub(r"\s(https?://\S+/(?:[\w/.-?_]|\\_)+)", r"\\url{\1}", platex)
 
     return platex
 
@@ -412,6 +412,7 @@ def update_poems(poems, deleted_poems):
 
     poems_out = [p for p in poems if not getattr(p, "deleted", False)]
     deleted_poems = [p for p in poems if getattr(p, "deleted", False)] + deleted_poems
+    deleted_poems.sort(key=lambda x: x.datetime, reverse=True)
     print()
     return poems_out, deleted_poems
 
@@ -429,19 +430,22 @@ def add_submission(poems, link):
             return
 
 
-print("loading stored poems")
-poems = load_poems_json("poems.json")
-deleted_poems = load_poems_json("deleted_poems.json")
-print("updating recent poems")
-poems, deleted_poems = update_poems(poems, deleted_poems)
-print("getting new poems")
-poems = get_poems(poems)
-print("creating pdf")
-poems = create_pdf(poems)
-print("saving poems")
-save_poems_json(poems, "poems.json")
-save_poems_json(deleted_poems, "deleted_poems.json")
+def main():
+    print("loading stored poems")
+    poems = load_poems_json("poems.json")
+    deleted_poems = load_poems_json("deleted_poems.json")
+    print("updating recent poems")
+    poems, deleted_poems = update_poems(poems, deleted_poems)
+    print("getting new poems")
+    poems = get_poems(poems)
+    print("creating pdf")
+    poems = create_pdf(poems)
+    print("saving poems")
+    save_poems_json(poems, "poems.json")
+    save_poems_json(deleted_poems, "deleted_poems.json")
 
+if __name__ == "__main__":
+    main()
 
 # ----------------------------------
 # useful snippets
