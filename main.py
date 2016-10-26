@@ -11,6 +11,8 @@ import re
 import json
 import statistics
 
+from stats_n_graphs import id_from_link, posting_time_stats, make_graphs
+
 user_name = "Poem_for_your_sprog"
 template = Template(filename="sprog.tex.mako")
 latexfile = "sprog.tex"
@@ -335,37 +337,6 @@ def make_snippet(tex):
     return snip
 
 
-def id_from_link(link):
-    """create a unique (hopefully) from permalink (for latex labels)"""
-    allowedchars = "abcdefghijklmnopqrstuvwxyz"
-    allowedchars += allowedchars.upper()
-    allowedchars += "0123456789"
-    return "".join(c for c in link if c in allowedchars)[-10:]
-
-
-def prettyp_seconds(seconds):
-    out = []
-    if seconds > 60*60:
-        out.append("{:.0f}h".format(seconds // (60 * 60)))
-        seconds %= (60*60)
-    if seconds > 60:
-        out.append("{:.0f}m".format(seconds // 60))
-        seconds %= 60
-    if seconds > 0:
-        out.append("{:.0f}s".format(seconds))
-    return " ".join(out)
-
-
-def posting_time_stats(poems):
-    diffs = [((p.datetime - datetime.datetime.utcfromtimestamp(p.parents[-1]["timestamp"])).total_seconds(),
-              id_from_link(p.link))
-             for p in poems
-             if p.parents and p.parents[-1].get("timestamp", None)]
-    med_seconds = statistics.median(map(lambda x: x[0], diffs))
-    min_seconds, min_link= min(diffs, key=lambda x: x[0])
-    return prettyp_seconds(med_seconds), prettyp_seconds(min_seconds), min_link
-
-
 def make_compile_latex(poems):
     latex = template.render_unicode(poems=poems,
                                     make_snippet=make_snippet, id_from_link=id_from_link,
@@ -384,6 +355,7 @@ def make_compile_latex(poems):
 def create_pdf(poems):
     poems = get_images(poems)
     process_images()
+    make_graphs(poems)
     make_compile_latex(poems)
     filename = latexfile[:-4] + ".pdf"
     shutil.move(os.path.join(tmpdir, filename), filename)
@@ -429,21 +401,23 @@ def add_submission(poems, link):
         return
     submission = r.get_submission(link)
     time = datetime.datetime.utcfromtimestamp(submission.created_utc)
-    for i in range(len(poems)-1):
-        if poems[i].datetime > time > poems[i+1].datetime:
-            poems.insert(i+1, Poem.from_comment(submission, is_submission=True))
+    for i in range(len(poems) - 1):
+        if poems[i].datetime > time > poems[i + 1].datetime:
+            poems.insert(i + 1, Poem.from_comment(submission, is_submission=True))
             return
+
 
 print("loading stored poems")
 poems = load_poems_json()
-print("updating recent poems")
-poems = update_poems(poems)
-print("getting new poems")
-poems = get_poems(poems)
+
+# print("updating recent poems")
+# poems = update_poems(poems)
+# print("getting new poems")
+# poems = get_poems(poems)
 print("creating pdf")
 poems = create_pdf(poems)
-print("saving poems")
-save_poems_json(poems)
+# print("saving poems")
+# save_poems_json(poems)
 
 
 # ----------------------------------

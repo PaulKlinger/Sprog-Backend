@@ -111,4 +111,8 @@
 \item \textbf{${p.score}} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
+\section*{Graphs}
+\makebox[\textwidth][c]{
+\includegraphics[width=1.3\textwidth]{monthsplot.pdf}
+}
 \end{document}
