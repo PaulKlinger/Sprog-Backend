@@ -324,6 +324,13 @@ def process_latex(latex):
     #########
     platex = platex.replace(r"\section{", r"\textbf{\Large ")
     platex = platex.replace(r"\subsection{", r"\textbf{\large ")
+
+    ########
+    # format urls
+    ########
+    # this turns urls into links but also allows latex to put linebreaks in them
+    platex = re.sub(r"\s(https?://\S+/(?:[\w/.-?_]|\\_)+)", r"\url{\1}", platex)
+
     return platex
 
 
@@ -425,5 +432,7 @@ save_poems_json(poems)
 
 # # remove double spacing except between verses
 # # (sprog only used this on early poems so this doesn't need to run all the time)
+# # \r\n\r\n should be readded between \end{itemize} and \emph to prevent an error,
+# # I did this manually for the six cases where it occurred.
 # for p in poems[-142:]:
 #     p.content = re.sub("(?:(?<!})\r\n\r\n(?!\\\\emph))|(?:(?<=})\r\n\r\n(?=\\\\emph))", r"\\\\", p.content)

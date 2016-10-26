@@ -57,10 +57,11 @@
     %endif
     \section*{\#${len(poems)-i} -- ${poem.submission_title}\\\
                 ${poem.datetime.strftime("%Y-%m-%d %H:%M:%S")}}\label{${id_from_link(poem.link)}}
-    \begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=/u/${poem.submission_user},breakable]
+    \begin{tcolorbox}[enhanced, colback=green!5,colframe=green!40!black,title=/u/${poem.submission_user},breakable]
         % if poem.submission_url is not None:
         \href{${poem.submission_url}}{[Link]}
             % if poem.imgfilename:
+
                 \includegraphics[keepaspectratio,max width=0.5\textwidth, max height=0.5\textwidth]{"${poem.imgfilename}"}
             % endif
         % else:
@@ -69,12 +70,12 @@
     \end{tcolorbox}
 
     % for c in poem.parents:
-        \begin{tcolorbox}[colback=blue!5,colframe=blue!40!black,title=/u/${c["author"]},breakable]
+        \begin{tcolorbox}[enhanced, colback=blue!5,colframe=blue!40!black,title=/u/${c["author"]},breakable]
             ${c["body"]}
         \end{tcolorbox}
     % endfor
 
-    \begin{tcolorbox}[colframe=black!40!black,${"breakable," if len([1 for c in poem.content if c == "\n"])>35 else ""}
+    \begin{tcolorbox}[enhanced, colframe=black!40!black,${"breakable," if poem.content.count("\\\\")+poem.content.count("\r\n\r\n")>40 else ""}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             \begin{verse}
