@@ -77,7 +77,7 @@
         \end{tcolorbox}
     % endfor
 
-    \begin{tcolorbox}[enhanced, colframe=black!40!black,${"breakable," if poem.content.count("\\\\")+poem.content.count("\r\n\r\n")>40 else ""}
+    \begin{tcolorbox}[enhanced, colframe=black!40!black,${"breakable," if poem.content.count("\\\\")+poem.content.count("\r\n\r\n")>40 or len(poem.content)>3000 else ""}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             \begin{verse}
