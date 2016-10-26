@@ -152,7 +152,7 @@ def get_poems(poems=None):
     return newpoems + poems
 
 
-def save_poems_json(poems):
+def save_poems_json(poems, filename):
     struct = []
     for p in poems:
         struct.append({
@@ -171,15 +171,15 @@ def save_poems_json(poems):
             "gold": p.gold,
             "score": p.score,
         })
-    shutil.copy("poems.json", "poems_prev.json")
-    with open("poems.json", "w") as f:
+    shutil.copy(filename, "prev_" + filename)
+    with open(filename, "w") as f:
         f.write(json.dumps(struct, sort_keys=True, indent=4))
 
 
-def load_poems_json():
+def load_poems_json(filename):
     poems = []
     try:
-        with open("poems.json", "r") as f:
+        with open(filename, "r") as f:
             struct = json.loads(f.read())
             if struct:
                 for p in struct:
@@ -384,7 +384,7 @@ def get_comment_from_link(link):
     return c
 
 
-def update_poems(poems):
+def update_poems(poems, deleted_poems):
     for p in poems:
         print(".", end="", flush=True)
         if (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=14):
@@ -402,12 +402,18 @@ def update_poems(poems):
 
         except Exception as e:
             print("-------")
+            if isinstance(e, IndexError):
+                p.deleted = True
+                print("Poem deleted.")
             print("Error while updating poem")
             print(p.datetime.isoformat(), p.link)
             print(e)
             print("--------")
+
+    poems_out = [p for p in poems if not getattr(p, "deleted", False)]
+    deleted_poems = [p for p in poems if getattr(p, "deleted", False)] + deleted_poems
     print()
-    return poems
+    return poems_out, deleted_poems
 
 
 def add_submission(poems, link):
@@ -424,15 +430,17 @@ def add_submission(poems, link):
 
 
 print("loading stored poems")
-poems = load_poems_json()
+poems = load_poems_json("poems.json")
+deleted_poems = load_poems_json("deleted_poems.json")
 print("updating recent poems")
-poems = update_poems(poems)
+poems, deleted_poems = update_poems(poems, deleted_poems)
 print("getting new poems")
 poems = get_poems(poems)
 print("creating pdf")
 poems = create_pdf(poems)
 print("saving poems")
-save_poems_json(poems)
+save_poems_json(poems, "poems.json")
+save_poems_json(deleted_poems, "deleted_poems.json")
 
 
 # ----------------------------------
