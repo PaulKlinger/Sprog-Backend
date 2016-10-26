@@ -238,7 +238,8 @@ def get_image_url_from_link(url):
 
 def create_image_filename(timestamp, imgurl):
     tstring = timestamp.strftime("%Y_%m_%dT%H_%M_%S")
-    imgname = imgurl.split("/")[-1]
+    # create imgname from last url segment by filtering out anything that isn't a valid filename character
+    imgname = "".join([c for c in imgurl.split("/")[-1] if c.isalnum() or c in ' _.']).rstrip()
     imgfilename = "{}_{}".format(tstring, imgname)
     return imgfilename
 
@@ -257,6 +258,21 @@ def download_image(imgurl, imgfilename):
         return True
 
 
+def get_images_from_tex(tex, timestamp):
+    for m in re.finditer(r"(?:\\href{)?(https?://\S+/[\w/.-?]+)(?:}{(.*?)})?", tex,
+                         re.MULTILINE | re.DOTALL):
+
+        imgurl = get_image_url_from_link(m.group(1))
+        if imgurl:
+            imgfilename = create_image_filename(timestamp, imgurl)
+            if download_image(imgurl, imgfilename):
+                includeimg = r"{}~\\ \includegraphics[keepaspectratio," \
+                             r"max width=0.5\textwidth, max height=0.75\textwidth]" \
+                             r'{{"{}"}}\\'.format(m.group(2) or "", imgfilename)
+                tex = tex.replace(m.group(0), includeimg)
+    return tex
+
+
 def get_images(poems):
     for p in poems:
         if p.submission_url and not p.noimg and not p.imgfilename:
@@ -267,18 +283,11 @@ def get_images(poems):
                     p.imgfilename = imgfilename
                 else:
                     p.noimg = True
+        else:
+            p.submission_content = get_images_from_tex(p.submission_content, p.datetime)
 
         for i, c in enumerate(p.parents):
-            for m in re.finditer(r"(?:\\href{)?(https?://\S+/[\w/.-?]+)(?:}{(.*?)})?", c["body"],
-                                 re.MULTILINE | re.DOTALL):
-                imgurl = get_image_url_from_link(m.group(1))
-                if imgurl:
-                    imgfilename = create_image_filename(p.datetime, imgurl)
-                    if download_image(imgurl, imgfilename):
-                        includeimg = r"{}~\\ \includegraphics[keepaspectratio," \
-                                     r"max width=0.5\textwidth, max height=0.5\textwidth]" \
-                                     r'{{"{}"}}\\'.format(m.group(2) or "", imgfilename)
-                        c["body"] = c["body"].replace(m.group(0), includeimg)
+            c["body"] = get_images_from_tex(c["body"], p.datetime)
     return poems
 
 
