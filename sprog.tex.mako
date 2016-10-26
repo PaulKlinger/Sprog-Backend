@@ -23,6 +23,8 @@
 \newpagestyle{mystyle}
 {\sethead[][][\chaptertitle]{}{}{}\setfoot{}{\thepage}{}}
 \pagestyle{mystyle}
+%% reduce margin before chapter
+\titlespacing*{\chapter}{0pt}{10pt}{25pt}
 %%%%%%%%%%%%%
 
 \usepackage[hyperfootnotes=false]{hyperref} % needs to be loaded last
@@ -101,14 +103,14 @@
 
 \section*{Most gilded:}
 \begin{enumerate}
-% for p in sorted(poems, key=lambda x: x.gold or 0, reverse=True)[:10]:
+% for p in sorted(poems, key=lambda x: x.gold or 0, reverse=True)[:15]:
 \item \scalerel*{\includegraphics{../gold.png}}{B}\makebox[1cm]{$\,\times\,${p.gold}$\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
 
 \section*{Most karma:}
 \begin{enumerate}
-% for p in sorted(poems, key=lambda x: x.score or 0, reverse=True)[:10]:
+% for p in sorted(poems, key=lambda x: x.score or 0, reverse=True)[:15]:
 \item \textbf{${p.score}} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
