@@ -1,5 +1,9 @@
 import datetime
 import statistics
+# need to set matplotlib backend before importing pyplot,
+#  else an error occurs if running without gui
+import matplotlib
+matplotlib.use('Agg')
 import pandas
 import matplotlib.pyplot as plt
 from collections import Counter
