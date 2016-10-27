@@ -364,8 +364,8 @@ def make_compile_latex(poems):
         f.write(latex.encode("utf-8"))
 
     command = "xelatex -interaction nonstopmode {}".format(latexfile)
-    subprocess.call(command, cwd=tmpdir)
-    subprocess.call(command, cwd=tmpdir)
+    subprocess.call(command, cwd=tmpdir, shell=True)
+    subprocess.call(command, cwd=tmpdir, shell=True)
 
 
 def create_pdf(poems):
