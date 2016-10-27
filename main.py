@@ -293,7 +293,7 @@ def get_images(poems):
 
 def process_images():
     """scale images to a maximum resolution of 2000x2000 and set dpi to 300 (for auto scaling of images)"""
-    command = r'./mogrify -resize "2000x2000>" -units "pixelsperinch" -density "150x150" *.png *.jpg'
+    command = r'mogrify -resize "2000x2000>" -units "pixelsperinch" -density "150x150" *.png *.jpg'
     subprocess.call(command, cwd=tmpdir)
 
 
