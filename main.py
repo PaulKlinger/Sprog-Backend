@@ -10,6 +10,7 @@ import shutil
 import re
 import json
 import statistics
+import boto3
 
 from stats_n_graphs import id_from_link, posting_time_stats, make_graphs
 
@@ -18,6 +19,9 @@ template = Template(filename="sprog.tex.mako")
 latexfile = "sprog.tex"
 tmpdir = "tmp"
 comment_limit = None
+
+AWS_ACCESS_KEY = "***REMOVED***"
+AWS_SECRET_KEY = "***REMOVED***"
 
 r = praw.Reddit(user_agent="Python:Sprog:dev (by /u/Almoturg)")
 
@@ -417,6 +421,14 @@ def update_poems(poems, deleted_poems):
     return poems_out, deleted_poems
 
 
+def upload_pdf_to_s3():
+    s3 = boto3.resource("s3", "eu-west-1",
+                        aws_access_key_id=AWS_ACCESS_KEY,
+                        aws_secret_access_key=AWS_SECRET_KEY,)
+    bucket = s3.Bucket("sprog")
+    bucket.upload_file("sprog.pdf", "sprog.pdf")
+
+
 def add_submission(poems, link):
     """Add a submission (currently not running automatically because most submissions aren't poems)"""
     if link in (p.link for p in poems):
@@ -440,6 +452,8 @@ def main():
     poems = get_poems(poems)
     print("creating pdf")
     poems = create_pdf(poems)
+    print("uploading to s3")
+    upload_pdf_to_s3()
     print("saving poems")
     save_poems_json(poems, "poems.json")
     save_poems_json(deleted_poems, "deleted_poems.json")
