@@ -28,10 +28,8 @@
         text-align: center;
     }
     #container {
-        box-shadow: 0 0 100px 100px rgba(247, 250, 252, 0.8);
         font-family: 'Roboto', sans-serif;
-        background-color: rgba(247, 250, 252, 0.8);
-        border-radius: 60px;
+        background-color: transparent;
         max-width: 650px;
         padding: 40px;
         margin-left:auto;
@@ -40,6 +38,20 @@
         position: relative;
         top: 50%;
         transform: perspective(1px) translateY(-50%); /* the perspective thingy prevents some artifacts/blurryness */
+    }
+    #blur{
+        z-index: -100;
+        width: 100%;
+        height: 100%;
+        position:absolute;
+        top:0px;
+        right:0px;
+        bottom:0px;
+        left:0px;
+        background-color: rgba(247, 250, 252, 0.8);
+        border-radius: 60px;
+        box-shadow: 0 0 100px 100px rgba(247, 250, 252, 0.8);
+        filter: blur(10px);
     }
     #stats {
         max-width: 450px;
@@ -112,6 +124,8 @@
 
 <body>
     <div id="container">
+        <div id="blur">
+        </div>
         <div id="title">
         <h1>The Unofficial<br/>
 
