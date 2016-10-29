@@ -51,7 +51,7 @@
 \vfill
 
 {\footnotesize For bug reports or suggestions contact /u/Almoturg.\par}
-{\footnotesize The newest version of this file is available \href{https://drive.google.com/uc?export=download&confirm=PUC1&id=0B5rhAEnx4Q9wbWdkbXd1VnpzUEU}{here}.\par}
+{\footnotesize The newest version of this file is available \href{https://almoturg.com/sprog}{here}.\par}
 \end{titlepage}
 % for i, poem in enumerate(poems):
     % if i==0 or (i+1<len(poems) and poem.datetime.year != poems[i-1].datetime.year):
