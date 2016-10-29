@@ -444,7 +444,7 @@ def upload_to_s3():
     bucket = s3.Bucket("almoturg.com")
     bucket.upload_file("sprog.pdf", "sprog.pdf",
                        ExtraArgs={'ContentType': 'application/pdf'})
-    bucket.upload_file(os.path.join(tmpdir, "sprog.html"), "sprog.html",
+    bucket.upload_file(os.path.join(tmpdir, "sprog.html"), "sprog",
                        ExtraArgs={'ContentType': 'text/html'})
 
 
