@@ -13,6 +13,7 @@ import statistics
 import boto3
 
 from stats_n_graphs import id_from_link, posting_time_stats, make_graphs
+from utility import suffix_strftime
 
 user_name = "Poem_for_your_sprog"
 template = Template(filename="sprog.tex.mako")
@@ -369,18 +370,24 @@ def make_compile_latex(poems):
         f.write(latex.encode("utf-8"))
 
     command = "xelatex -interaction nonstopmode {}".format(latexfile)
-    subprocess.call(command, cwd=tmpdir, shell=True)
-    subprocess.call(command, cwd=tmpdir, shell=True)
+    res = subprocess.run(command, cwd=tmpdir, shell=True,)
+    res.check_returncode()
+    res = subprocess.run(command, cwd=tmpdir, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+    res.check_returncode()
+    match = re.search(r"Output written on sprog\.pdf \((\d+?) pages\)", res.stdout)
+    if not match:
+        raise Exception("something went wrong with the xetex command")
+    return int(match.group(1))
 
 
 def create_pdf(poems):
     poems = get_images(poems)
     process_images()
     make_graphs(poems)
-    make_compile_latex(poems)
+    pages = make_compile_latex(poems)
     filename = latexfile[:-4] + ".pdf"
     shutil.move(os.path.join(tmpdir, filename), filename)
-    return poems
+    return poems, pages
 
 
 def get_comment_from_link(link):
@@ -422,9 +429,10 @@ def update_poems(poems, deleted_poems):
     return poems_out, deleted_poems
 
 
-def make_html(poems):
+def make_html(poems, pages):
     with open(os.path.join(tmpdir, "sprog.html"), "w") as f:
-        f.write(index_template.render_unicode(poems=poems))
+        f.write(index_template.render_unicode(poems=poems, pages=pages,
+                                              suffix_strftime=suffix_strftime))
 
 
 def upload_to_s3():
@@ -460,9 +468,9 @@ def main():
     print("getting new poems")
     poems = get_poems(poems)
     print("creating pdf")
-    poems = create_pdf(poems)
-    print("make index.html")
-    make_html(poems)
+    poems, pages = create_pdf(poems)
+    print("make sprog.html")
+    make_html(poems, pages)
     print("uploading to s3")
     upload_to_s3()
     print("saving poems")

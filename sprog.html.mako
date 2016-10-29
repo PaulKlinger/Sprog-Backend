@@ -42,8 +42,30 @@
         margin-right: auto;
         padding-top: 50px;
         padding-bottom: 50px;
+        text-align: center;
     }
-
+    #stats ul {padding: 0;}
+    #stats li:before {
+        background-image: url('fleuron.png');
+        background-size: 1.1em 1.1em;
+        background-repeat: no-repeat;
+        background-position: center;
+        height: 1.2em;
+        position: relative;
+        bottom: 8px;
+        text-align: center;
+        width: 100%;
+        display: block;
+        content: " ";
+    }
+    #stats li:first-child:before{
+      display: none;
+    }
+    #stats li {
+        font-size: 15pt;
+        margin-top: 0.8em;
+        list-style: none;
+    }
     #title {
         text-align: center;
         font-family: 'Patua One', cursive;
@@ -86,7 +108,9 @@
         </div>
         <div id="stats">
             <ul>
-                <li>Currently containing ${len(poems)} poems.</li>
+                <li>Containing ${len(poems)} poems on ${pages} pages.</li>
+                <li>From ${suffix_strftime("%B {S}, %Y", poems[-1].datetime)}
+                    to ${suffix_strftime("%B {S}, %Y", poems[0].datetime)}.</li>
             </ul>
         </div>
         <div id="download">
