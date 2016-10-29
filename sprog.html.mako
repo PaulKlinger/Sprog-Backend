@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <title>The unofficial Poem_for_your_sprog Collection</title>
     <meta name="author" content="/u/Almoturg">
+    <link rel="icon" type="image/png" href="fleuron.png">
     <link href="https://fonts.googleapis.com/css?family=Patua+One|Roboto" rel="stylesheet">
 <style>
     html, body {
@@ -35,6 +36,9 @@
         padding: 40px;
         margin-left:auto;
         margin-right:auto;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
     }
     #stats {
         max-width: 450px;
