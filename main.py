@@ -14,6 +14,7 @@ import boto3
 
 from stats_n_graphs import id_from_link, posting_time_stats, make_graphs
 from utility import suffix_strftime
+from drive_upload import upload_sprog_to_drive
 
 user_name = "Poem_for_your_sprog"
 template = Template(filename="sprog.tex.mako")
@@ -473,8 +474,10 @@ def main():
     poems, pages = create_pdf(poems)
     print("make sprog.html")
     make_html(poems, pages)
-    print("uploading to s3")
+    print("uploading to S3")
     upload_to_s3()
+    print("uploading to Google Drive")
+    upload_sprog_to_drive()
     print("saving poems")
     save_poems_json(poems, "poems.json")
     save_poems_json(deleted_poems, "deleted_poems.json")
