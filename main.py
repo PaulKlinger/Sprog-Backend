@@ -393,6 +393,8 @@ def create_pdf(poems):
 def get_comment_from_link(link):
     submission = r.get_submission(link)
     c = submission.comments[0]
+    if c.permalink != link or c.body == "[deleted]":
+        raise IndexError("Comment does not exist")
     return c
 
 
@@ -472,7 +474,7 @@ def main():
     print("make sprog.html")
     make_html(poems, pages)
     print("uploading to s3")
-    upload_to_s3()
+    #upload_to_s3()
     print("saving poems")
     save_poems_json(poems, "poems.json")
     save_poems_json(deleted_poems, "deleted_poems.json")
