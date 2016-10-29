@@ -474,7 +474,7 @@ def main():
     print("make sprog.html")
     make_html(poems, pages)
     print("uploading to s3")
-    #upload_to_s3()
+    upload_to_s3()
     print("saving poems")
     save_poems_json(poems, "poems.json")
     save_poems_json(deleted_poems, "deleted_poems.json")
