@@ -16,6 +16,7 @@ from stats_n_graphs import id_from_link, posting_time_stats, make_graphs
 
 user_name = "Poem_for_your_sprog"
 template = Template(filename="sprog.tex.mako")
+index_template = Template(filename="sprog.html.mako")
 latexfile = "sprog.tex"
 tmpdir = "tmp"
 comment_limit = None
@@ -421,12 +422,20 @@ def update_poems(poems, deleted_poems):
     return poems_out, deleted_poems
 
 
-def upload_pdf_to_s3():
+def make_html(poems):
+    with open(os.path.join(tmpdir, "sprog.html"), "w") as f:
+        f.write(index_template.render_unicode(poems=poems))
+
+
+def upload_to_s3():
     s3 = boto3.resource("s3", "eu-west-1",
                         aws_access_key_id=AWS_ACCESS_KEY,
                         aws_secret_access_key=AWS_SECRET_KEY,)
-    bucket = s3.Bucket("sprog")
-    bucket.upload_file("sprog.pdf", "sprog.pdf")
+    bucket = s3.Bucket("almoturg.com")
+    bucket.upload_file("sprog.pdf", "sprog.pdf",
+                       ExtraArgs={'ContentType': 'application/pdf'})
+    bucket.upload_file(os.path.join(tmpdir, "sprog.html"), "sprog.html",
+                       ExtraArgs={'ContentType': 'text/html'})
 
 
 def add_submission(poems, link):
@@ -452,8 +461,10 @@ def main():
     poems = get_poems(poems)
     print("creating pdf")
     poems = create_pdf(poems)
+    print("make index.html")
+    make_html(poems)
     print("uploading to s3")
-    upload_pdf_to_s3()
+    upload_to_s3()
     print("saving poems")
     save_poems_json(poems, "poems.json")
     save_poems_json(deleted_poems, "deleted_poems.json")
