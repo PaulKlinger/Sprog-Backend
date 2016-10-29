@@ -15,7 +15,7 @@
     }
     body{
         background-image: url("bg.jpg");
-        background-position: right bottom; /*Positioning*/
+        background-position: right bottom;
         background-repeat: no-repeat;
         background-size: cover;
     }
@@ -36,9 +36,10 @@
         padding: 40px;
         margin-left:auto;
         margin-right:auto;
+        /* the stuff below is for vertical centering */
         position: relative;
         top: 50%;
-        transform: translateY(-50%);
+        transform: perspective(1px) translateY(-50%); /* the perspective thingy prevents some artifacts/blurryness */
     }
     #stats {
         max-width: 450px;
