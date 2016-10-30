@@ -18,6 +18,7 @@
         background-position: right bottom;
         background-repeat: no-repeat;
         background-size: cover;
+        background-attachment: fixed;
     }
     #download {
         margin-left: auto;
