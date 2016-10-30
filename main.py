@@ -347,6 +347,12 @@ def process_latex(latex):
     # this turns urls into links but also allows latex to put linebreaks in them
     platex = re.sub(r"\s(https?://\S+/(?:[\w/.-?_]|\\_)+)", r"\\url{\1}", platex)
 
+    #######
+    # dots to fleurons
+    #######
+    platex = re.sub(r"\\begin\{itemize\}\s*\\item\s*\\end\{itemize\}",
+                    r"\r\n\r\n\\hfill\\includegraphics[width=1em, height=1em]{../fleuron.png}\\hspace*{\\fill}\r\n\r\n",
+                    platex)
     return platex
 
 

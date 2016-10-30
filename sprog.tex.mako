@@ -57,9 +57,13 @@ BoldFont = DroidSerif-Bold_modified.ttf ,
 ItalicFont = DroidSerif-Italic_modified.ttf,
 BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 
+% if small:
+\setlength{\leftmargini}{1em}
+% endif
+
 \begin{document}
 \begin{titlepage}\centering
-\par\vspace*{7cm}
+\par\vspace*{${"5cm" if small else "7cm"}}
 \titlefont{
 {\huge The Collected Reddit Poetry of\par}
 {\huge /u/Poem\_for\_your\_sprog \par}
@@ -93,8 +97,14 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
             ${c["body"]}
         \end{tcolorbox}
     % endfor
-
-    \begin{tcolorbox}[enhanced, colback=poemtitle!5, colframe=poemtitle,${"breakable," if poem.content.count("\\\\")+poem.content.count("\r\n\r\n")>40 or len(poem.content)>3000 else ""}
+    <%
+    if ((small and (poem.content.count("\\\\")+poem.content.count("\r\n\r\n")+poem.content.count("\n\n")+poem.content.count("fleuron")*3>24 or len(poem.content)>1200))
+    or (not small and (poem.content.count("\\\\")+poem.content.count("\r\n\r\n")+poem.content.count("\n\n")+poem.content.count("fleuron")*3>40 or len(poem.content)>3000))):
+        breakable = "breakable,"
+    else:
+        breakable = ""
+    %>
+    \begin{tcolorbox}[enhanced, colback=poemtitle!5, colframe=poemtitle, ${breakable}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             \begin{verse}
