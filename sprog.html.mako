@@ -142,7 +142,14 @@
             </ul>
         </div>
         <div id="download">
-            <a href="sprog.pdf" id="download_button">Get the .pdf!</a>
+            <a href="sprog.pdf" id="download_button"
+               onclick="ga('send', 'event',
+                        {eventCategory: 'download',
+                         eventAction: 'click',
+                         eventLabel: 'pdf downloaded',
+                         transport: 'beacon'});">
+                Get the .pdf!
+            </a>
         </div>
     </div>
 
