@@ -92,9 +92,9 @@
             \end{verse}
     \end{tcolorbox}
 % endfor
-\chapter{Statistics}
+\chapter{\titlefont{Statistics}}
 \large
-\section*{${len(poems)} Poems}
+\section*{\titlefont{${len(poems)} Poems}}
 \begin{itemize}
 \renewcommand{\labelitemi}{\dots}
 \item containing an average of ${"{:.2f}".format(sum(len(poem.content.split(" ")) for poem in poems)/len(poems))} words.
@@ -108,20 +108,20 @@
 \item with a combined score of ${"{:,}".format(sum(p.score or 0 for p in poems))} karma.
 \end{itemize}
 
-\section*{Most gilded:}
+\section*{\titlefont{Most gilded:}}
 \begin{enumerate}
 % for p in sorted(poems, key=lambda x: x.gold or 0, reverse=True)[:15]:
 \item \scalerel*{\includegraphics{../gold.png}}{B}\makebox[1cm]{$\,\times\,${p.gold}$\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
 
-\section*{Most karma:}
+\section*{\titlefont{Most karma:}}
 \begin{enumerate}
 % for p in sorted(poems, key=lambda x: x.score or 0, reverse=True)[:15]:
 \item \textbf{${p.score}} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
-\section*{Graphs}
+\section*{\titlefont{Graphs}}
 \makebox[\textwidth][c]{
 \includegraphics[width=1.3\textwidth]{monthsplot.pdf}
 }
