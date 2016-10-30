@@ -1,6 +1,11 @@
 \documentclass{report}
 \usepackage[english]{babel}
+% if small:
+\usepackage[paperheight=180mm,paperwidth=120mm,top=.5cm,bottom=.5cm,left=.5cm,right=.5cm]{geometry}
+% else:
 \usepackage[a4paper,top=3cm,bottom=4cm]{geometry}
+% endif
+
 \usepackage[many]{tcolorbox}
 \usepackage{verse}
 \usepackage[official]{eurosym}
@@ -128,6 +133,6 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 \end{enumerate}
 \section*{\titlefont{Graphs}}
 \makebox[\textwidth][c]{
-\includegraphics[width=1.3\textwidth]{monthsplot.pdf}
+\includegraphics[width=${"1.3" if not small else ""}\textwidth]{monthsplot.pdf}
 }
 \end{document}

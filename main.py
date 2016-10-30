@@ -360,8 +360,21 @@ def make_snippet(tex):
     return snip
 
 
+def compile_latex(latexfile):
+    command = "xelatex -interaction nonstopmode {}".format(latexfile)
+    subprocess.run(command, cwd=tmpdir, shell=True, )
+    res = subprocess.run(command, cwd=tmpdir, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    res_stdout = res.stdout.decode(encoding="utf-8", errors="replace")
+    match = re.search(r"\.pdf \((\d+?) pages\)", res_stdout)
+    if not match:
+        raise Exception("something went wrong with the xetex command")
+
+    return int(match.group(1))
+
+
 def make_compile_latex(poems):
-    latex = template.render_unicode(poems=poems,
+    latex = template.render_unicode(poems=poems, small=False,
                                     make_snippet=make_snippet, id_from_link=id_from_link,
                                     posting_time_stats=posting_time_stats, statistics=statistics,
                                     user_name=user_name.replace("_", "\\_"))
@@ -370,25 +383,29 @@ def make_compile_latex(poems):
     with open(os.path.join(tmpdir, latexfile), "wb") as f:
         f.write(latex.encode("utf-8"))
 
-    command = "xelatex -interaction nonstopmode {}".format(latexfile)
-    res = subprocess.run(command, cwd=tmpdir, shell=True,)
-    res = subprocess.run(command, cwd=tmpdir, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    latex = template.render_unicode(poems=poems, small=True,
+                                    make_snippet=make_snippet, id_from_link=id_from_link,
+                                    posting_time_stats=posting_time_stats, statistics=statistics,
+                                    user_name=user_name.replace("_", "\\_"))
+    latex = process_latex(latex)
 
-    res_stdout = res.stdout.decode(encoding="utf-8", errors="replace")
-    match = re.search(r"Output written on sprog\.pdf \((\d+?) pages\)", res_stdout)
-    if not match:
-        raise Exception("something went wrong with the xetex command")
-    return int(match.group(1))
+    with open(os.path.join(tmpdir, "small_" + latexfile), "wb") as f:
+        f.write(latex.encode("utf-8"))
+
+    pages = compile_latex(latexfile)
+    pages_small = compile_latex("small_" + latexfile)
+    return pages, pages_small
 
 
 def create_pdf(poems):
     poems = get_images(poems)
     process_images()
     make_graphs(poems)
-    pages = make_compile_latex(poems)
+    pages, pages_small = make_compile_latex(poems)
     filename = latexfile[:-4] + ".pdf"
     shutil.move(os.path.join(tmpdir, filename), filename)
-    return poems, pages
+    shutil.move(os.path.join(tmpdir, "small_" + filename), "small_" + filename)
+    return poems, pages, pages_small
 
 
 def get_comment_from_link(link):
@@ -434,9 +451,9 @@ def update_poems(poems, deleted_poems):
     return poems_out, deleted_poems
 
 
-def make_html(poems, pages):
+def make_html(poems, pages, pages_small):
     with open(os.path.join(tmpdir, "sprog.html"), "w") as f:
-        f.write(index_template.render_unicode(poems=poems, pages=pages,
+        f.write(index_template.render_unicode(poems=poems, pages=pages, pages_small=pages_small,
                                               suffix_strftime=suffix_strftime))
 
 
@@ -446,6 +463,8 @@ def upload_to_s3():
                         aws_secret_access_key=AWS_SECRET_KEY,)
     bucket = s3.Bucket("almoturg.com")
     bucket.upload_file("sprog.pdf", "sprog.pdf",
+                       ExtraArgs={'ContentType': 'application/pdf'})
+    bucket.upload_file("small_sprog.pdf", "sprog_small.pdf",
                        ExtraArgs={'ContentType': 'application/pdf'})
     bucket.upload_file(os.path.join(tmpdir, "sprog.html"), "sprog",
                        ExtraArgs={'ContentType': 'text/html'})
@@ -473,9 +492,9 @@ def main():
     print("getting new poems")
     poems = get_poems(poems)
     print("creating pdf")
-    poems, pages = create_pdf(poems)
+    poems, pages, pages_small = create_pdf(poems)
     print("make sprog.html")
-    make_html(poems, pages)
+    make_html(poems, pages, pages_small)
     print("uploading to S3")
     upload_to_s3()
     print("uploading to Google Drive")

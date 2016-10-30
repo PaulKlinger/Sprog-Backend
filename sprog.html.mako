@@ -7,6 +7,7 @@
     <meta name="author" content="/u/Almoturg">
     <link rel="icon" type="image/png" href="fleuron.png">
     <link href="https://fonts.googleapis.com/css?family=Patua+One|Roboto" rel="stylesheet">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <style>
     html, body {
         height: 100%;
@@ -22,11 +23,10 @@
         background-attachment: fixed;
     }
     #download {
+        display: flex;
         margin-left: auto;
         margin-right: auto;
-        display: block;
-        width:200px;
-        height:30px;
+        max-width: 400px;
         text-align: center;
     }
     #container {
@@ -86,15 +86,20 @@
         text-align: center;
         font-family: 'Patua One', cursive;
     }
-    #download_button {
-        background-color: #4CAF50; /* Green */
+    .button {
+        margin: auto;
         border: none;
         color: white;
         padding: 15px 32px;
         text-align: center;
         text-decoration: none;
-        display: inline-block;
         font-size: 16px;
+    }
+    #download_button {
+        background-color: #4CAF50; /* Green */
+    }
+    #mobile_download_button {
+        background-color: #3B8386; /* Blue */
     }
     h1 {
         font-size: 30pt;
@@ -106,6 +111,30 @@
         font-size:20pt;
         color: #b1b5bc;
         font-weight: normal;
+    }
+
+    @media screen and (max-width: 500px) {
+        #container {
+            width: 90vw;
+            padding: 0;
+            padding-left: 5vw;
+            padding-right: 5vw;
+        }
+        h1 {font-size: 20pt}
+        h2 {font-size: 15pt}
+        #stats li {font-size: 12pt}
+        .button {
+            font-size: 13pt;
+            margin-bottom: 2em;
+        }
+        #download {flex-wrap: wrap-reverse;}
+        #stats {padding-top: 25px; padding-bottom: 25px;}
+        #blur {box-shadow: 0 0 100px 30px rgba(247, 250, 252, 0.8);}
+    }
+    @media screen and (max-width: 350px) {
+        h1 {font-size: 18pt}
+        h2 {font-size: 14pt}
+
     }
 </style>
 
@@ -135,19 +164,29 @@
         </div>
         <div id="stats">
             <ul>
-                <li>Containing ${len(poems)} poems on ${pages} pages.</li>
+                <li>Containing ${len(poems)} poems on ${pages} / ${pages_small} pages.</li>
                 <li>From ${suffix_strftime("%B {S}, %Y", poems[-1].datetime)}
                     to ${suffix_strftime("%B {S}, %Y", poems[0].datetime)}.</li>
             </ul>
         </div>
         <div id="download">
-            <a href="sprog.pdf" id="download_button"
+            <a href="sprog.pdf" id="download_button" class="button"
                onclick="ga('send', 'event',
                         {eventCategory: 'download',
                          eventAction: 'click',
                          eventLabel: 'pdf downloaded',
                          transport: 'beacon'});">
-                Get the .pdf!
+                full-size .pdf<br/>
+                (for desktop/print)
+            </a>
+            <a href="sprog_small.pdf" id="mobile_download_button" class="button"
+               onclick="ga('send', 'event',
+                        {eventCategory: 'download',
+                         eventAction: 'click',
+                         eventLabel: 'mobile pdf downloaded',
+                         transport: 'beacon'});">
+                small .pdf<br/>
+                (for mobile)
             </a>
         </div>
     </div>
