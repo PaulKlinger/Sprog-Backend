@@ -45,7 +45,12 @@
 \nopagebreak{\raggedleft\footnotesize #1\par}}
 
 \definecolor{textgray}{RGB}{40,40,40}
-\newcommand\titlefont[1]{{\setmainfont{PatuaOne-Regular.otf}[Path=../]\color{textgray}{#1}}}
+\newcommand\titlefont[1]{{\setmainfont{PatuaOne-Regular.otf}[Path=../fonts/]\color{textgray}{#1}}}
+
+\setmainfont{DroidSerif_modified.ttf}[Path=../fonts/,
+BoldFont = DroidSerif-Bold_modified.ttf ,
+ItalicFont = DroidSerif-Italic_modified.ttf,
+BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 
 \begin{document}
 \begin{titlepage}\centering
@@ -62,7 +67,7 @@
 \end{titlepage}
 % for i, poem in enumerate(poems):
     % if i==0 or (i+1<len(poems) and poem.datetime.year != poems[i-1].datetime.year):
-    \chapter{\titlefont{${poem.datetime.year}}}
+    \chapter[${poem.datetime.year}]{\titlefont{${poem.datetime.year}}}
     %endif
     \section*{\titlefont{\#${len(poems)-i} -- ${poem.submission_title}\\\
                 ${poem.datetime.strftime("%Y-%m-%d %H:%M:%S")}}}\label{${id_from_link(poem.link)}}
@@ -92,7 +97,7 @@
             \end{verse}
     \end{tcolorbox}
 % endfor
-\chapter{\titlefont{Statistics}}
+\chapter[Statistics]{\titlefont{Statistics}}
 \large
 \section*{\titlefont{${len(poems)} Poems}}
 \begin{itemize}
