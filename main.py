@@ -372,9 +372,8 @@ def make_compile_latex(poems):
 
     command = "xelatex -interaction nonstopmode {}".format(latexfile)
     res = subprocess.run(command, cwd=tmpdir, shell=True,)
-    res.check_returncode()
-    res = subprocess.run(command, cwd=tmpdir, shell=True, stdout=subprocess.PIPE)
-    res.check_returncode()
+    res = subprocess.run(command, cwd=tmpdir, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
     res_stdout = res.stdout.decode(encoding="utf-8", errors="replace")
     match = re.search(r"Output written on sprog\.pdf \((\d+?) pages\)", res_stdout)
     if not match:
@@ -409,6 +408,8 @@ def update_poems(poems, deleted_poems):
             c = get_comment_from_link(p.link)
             p.gold = c.gilded
             p.score = c.score
+            p.content = md2latex(c.body)
+            p.orig_content = c.body
             if False:  # Don't update comments for now, takes a long time and info is not used.
                 for parent in p.parents:
                     if "link" in parent and parent["link"]:
