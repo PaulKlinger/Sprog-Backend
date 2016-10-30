@@ -13,6 +13,7 @@
         height: 100%;
         margin:0;
         padding:0;
+        overflow: auto;
     }
     body{
         display: flex;
@@ -114,6 +115,7 @@
     }
 
     @media screen and (max-width: 500px) {
+        #body {background-attachment: scroll;}
         #container {
             width: 90vw;
             padding: 0;
@@ -176,7 +178,7 @@
                          eventAction: 'click',
                          eventLabel: 'pdf downloaded',
                          transport: 'beacon'});">
-                full-size .pdf<br/>
+                full-size pdf<br/>
                 (for desktop/print)
             </a>
             <a href="sprog_small.pdf" id="mobile_download_button" class="button"
@@ -185,7 +187,7 @@
                          eventAction: 'click',
                          eventLabel: 'mobile pdf downloaded',
                          transport: 'beacon'});">
-                small .pdf<br/>
+                small pdf<br/>
                 (for mobile)
             </a>
         </div>
