@@ -14,6 +14,7 @@
         padding:0;
     }
     body{
+        display: flex;
         background-image: url("bg.jpg");
         background-position: right bottom;
         background-repeat: no-repeat;
@@ -33,12 +34,9 @@
         background-color: transparent;
         max-width: 650px;
         padding: 40px;
-        margin-left:auto;
-        margin-right:auto;
-        /* the stuff below is for vertical centering */
+        margin: auto;
         position: relative;
-        top: 50%;
-        transform: perspective(1px) translateY(-50%); /* the perspective thingy prevents some artifacts/blurryness */
+        transform: perspective(1px); /* this fixes artifacts in Edge */
     }
     #blur{
         z-index: -100;
