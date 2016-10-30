@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>The unofficial Poem_for_your_sprog Collection</title>
+    <title>The Unofficial Poem_for_your_sprog Collection</title>
     <meta name="author" content="/u/Almoturg">
     <link rel="icon" type="image/png" href="fleuron.png">
     <link href="https://fonts.googleapis.com/css?family=Patua+One|Roboto" rel="stylesheet">
