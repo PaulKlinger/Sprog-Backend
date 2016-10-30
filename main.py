@@ -373,9 +373,10 @@ def make_compile_latex(poems):
     command = "xelatex -interaction nonstopmode {}".format(latexfile)
     res = subprocess.run(command, cwd=tmpdir, shell=True,)
     res.check_returncode()
-    res = subprocess.run(command, cwd=tmpdir, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+    res = subprocess.run(command, cwd=tmpdir, shell=True, stdout=subprocess.PIPE)
     res.check_returncode()
-    match = re.search(r"Output written on sprog\.pdf \((\d+?) pages\)", res.stdout)
+    res_stdout = res.stdout.decode(encoding="utf-8", errors="replace")
+    match = re.search(r"Output written on sprog\.pdf \((\d+?) pages\)", res_stdout)
     if not match:
         raise Exception("something went wrong with the xetex command")
     return int(match.group(1))

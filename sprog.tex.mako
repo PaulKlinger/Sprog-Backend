@@ -8,6 +8,7 @@
 \usepackage{graphicx}
 \usepackage[export]{adjustbox}
 \usepackage{scalerel}
+\usepackage{fontspec}
 
 \usepackage{longtable,booktabs}
 \usepackage{fancyvrb}
@@ -36,30 +37,36 @@
     urlcolor={blue!80!black}
 }
 \definecolor{babyblue}{rgb}{0.54, 0.81, 0.94}
+\definecolor{posttitle}{RGB}{49, 107, 38}
+\definecolor{commenttitle}{RGB}{48, 80, 124}
+\definecolor{poemtitle}{RGB}{25, 25, 25}
 
 \newcommand{\attrib}[1]{%
 \nopagebreak{\raggedleft\footnotesize #1\par}}
 
+\definecolor{textgray}{RGB}{40,40,40}
+\newcommand\titlefont[1]{{\setmainfont{PatuaOne-Regular.otf}[Path=../]\color{textgray}{#1}}}
 
 \begin{document}
 \begin{titlepage}\centering
 \par\vspace*{7cm}
-{\LARGE The Collected Reddit Poetry of\par}
-{\LARGE /u/Poem\_for\_your\_sprog \par}
+\titlefont{
+{\huge The Collected Reddit Poetry of\par}
+{\huge /u/Poem\_for\_your\_sprog \par}
 \vspace{5mm}
-{\large \today \par}
+{\Large \today \par}}
 \vfill
 
-{\footnotesize For bug reports or suggestions contact /u/Almoturg.\par}
-{\footnotesize The newest version of this file is available \href{https://almoturg.com/sprog}{here}.\par}
+{\small For bug reports or suggestions contact /u/Almoturg.\par}
+{\small The newest version of this file is available \href{https://almoturg.com/sprog}{here}.\par}
 \end{titlepage}
 % for i, poem in enumerate(poems):
     % if i==0 or (i+1<len(poems) and poem.datetime.year != poems[i-1].datetime.year):
-    \chapter{${poem.datetime.year}}
+    \chapter{\titlefont{${poem.datetime.year}}}
     %endif
-    \section*{\#${len(poems)-i} -- ${poem.submission_title}\\\
-                ${poem.datetime.strftime("%Y-%m-%d %H:%M:%S")}}\label{${id_from_link(poem.link)}}
-    \begin{tcolorbox}[enhanced, colback=green!5,colframe=green!40!black,title=/u/${poem.submission_user},breakable]
+    \section*{\titlefont{\#${len(poems)-i} -- ${poem.submission_title}\\\
+                ${poem.datetime.strftime("%Y-%m-%d %H:%M:%S")}}}\label{${id_from_link(poem.link)}}
+    \begin{tcolorbox}[enhanced, colback=posttitle!5,colframe=posttitle,title=/u/${poem.submission_user},breakable]
         % if poem.submission_url is not None:
         \href{${poem.submission_url}}{[Link]}
             % if poem.imgfilename:
@@ -72,12 +79,12 @@
     \end{tcolorbox}
 
     % for c in poem.parents:
-        \begin{tcolorbox}[enhanced, colback=blue!5,colframe=blue!40!black,title=/u/${c["author"]},breakable]
+        \begin{tcolorbox}[enhanced, colback=commenttitle!5,colframe=commenttitle,title=/u/${c["author"]},breakable]
             ${c["body"]}
         \end{tcolorbox}
     % endfor
 
-    \begin{tcolorbox}[enhanced, colframe=black!40!black,${"breakable," if poem.content.count("\\\\")+poem.content.count("\r\n\r\n")>40 or len(poem.content)>3000 else ""}
+    \begin{tcolorbox}[enhanced, colback=poemtitle!5, colframe=poemtitle,${"breakable," if poem.content.count("\\\\")+poem.content.count("\r\n\r\n")>40 or len(poem.content)>3000 else ""}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             \begin{verse}
