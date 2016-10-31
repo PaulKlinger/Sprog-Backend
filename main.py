@@ -417,7 +417,7 @@ def create_pdf(poems):
 def get_comment_from_link(link):
     submission = r.get_submission(link)
     c = submission.comments[0]
-    if c.permalink != link or c.body == "[deleted]":
+    if c.permalink != link or c.body == "[deleted]" or c.author is None:
         raise IndexError("Comment does not exist")
     return c
 
