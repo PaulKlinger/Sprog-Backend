@@ -13,7 +13,7 @@ def datetime_to_http_date(dt):
 
 
 def upload_to_s3():
-    cache_expire = datetime_to_http_date(datetime.utcnow()+timedelta(hours=11))
+    cache_expire = datetime_to_http_date(datetime.now()+timedelta(hours=11))
     s3 = boto3.resource("s3", "eu-west-1",
                         aws_access_key_id=AWS_ACCESS_KEY,
                         aws_secret_access_key=AWS_SECRET_KEY,)
