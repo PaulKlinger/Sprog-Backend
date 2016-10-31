@@ -1,4 +1,3 @@
-__author__ = 'Paul'
 import praw
 from mako.template import Template
 import subprocess
@@ -10,11 +9,11 @@ import shutil
 import re
 import json
 import statistics
-import boto3
 
 from stats_n_graphs import id_from_link, posting_time_stats, make_graphs
 from utility import suffix_strftime
 from drive_upload import upload_sprog_to_drive
+from s3_upload import upload_to_s3
 
 user_name = "Poem_for_your_sprog"
 template = Template(filename="sprog.tex.mako")
@@ -22,9 +21,6 @@ index_template = Template(filename="sprog.html.mako")
 latexfile = "sprog.tex"
 tmpdir = "tmp"
 comment_limit = None
-
-AWS_ACCESS_KEY = "***REMOVED***"
-AWS_SECRET_KEY = "***REMOVED***"
 
 r = praw.Reddit(user_agent="Python:Sprog:dev (by /u/Almoturg)")
 
@@ -461,20 +457,6 @@ def make_html(poems, pages, pages_small):
     with open(os.path.join(tmpdir, "sprog.html"), "w") as f:
         f.write(index_template.render_unicode(poems=poems, pages=pages, pages_small=pages_small,
                                               suffix_strftime=suffix_strftime))
-
-
-def upload_to_s3():
-    s3 = boto3.resource("s3", "eu-west-1",
-                        aws_access_key_id=AWS_ACCESS_KEY,
-                        aws_secret_access_key=AWS_SECRET_KEY,)
-    bucket = s3.Bucket("almoturg.com")
-    bucket.upload_file("sprog.pdf", "sprog.pdf",
-                       ExtraArgs={'ContentType': 'application/pdf'})
-    bucket.upload_file("small_sprog.pdf", "sprog_small.pdf",
-                       ExtraArgs={'ContentType': 'application/pdf'})
-    bucket.upload_file(os.path.join(tmpdir, "sprog.html"), "sprog",
-                       ExtraArgs={'ContentType': 'text/html'})
-
 
 def add_submission(poems, link):
     """Add a submission (currently not running automatically because most submissions aren't poems)"""
