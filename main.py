@@ -131,8 +131,7 @@ class Poem(object):
         latex = latex.replace(r"\begin{blockquote}", r"\end{verse}\begin{blockquote}")
         latex = latex.replace(r"\end{blockquote}", r"\end{blockquote}\begin{verse}")
 
-        latex = "\\begin{center}\\begin{varwidth}[t]{\\textwidth}\\begin{verse}" \
-                "\n%s\n\\end{verse}\\end{varwidth}\\end{center}" % latex
+        latex = "\\begin{verse}\n%s\n\\end{verse}" % latex
 
         latex = re.sub(r"\\begin\{verse\}\s*\\end\{verse\}", "", latex)
         return latex
@@ -307,8 +306,8 @@ def process_images():
 
 def make_snippet(tex):
     """"strips out newlines and links (used for top gilded list in statistics)"""
-    tex = tex.replace("\\begin{center}\\begin{varwidth}[t]{\\textwidth}\\begin{verse}", "")
-    tex = tex.replace("\\end{verse}\\end{varwidth}\\end{center}", "")  # veeery short poems??
+    tex = tex.replace("\\begin{verse}", "")
+    tex = tex.replace("\\end{verse}", "")  # veeery short poems??
     tex = tex.replace(r"\\", " ").replace("\r\n", " ")
     tex = re.sub(r"\\href\{.*?\}\{(.*?)\}", r"\1", tex, re.MULTILINE)
     snip = " ".join(tex.split(" ")[:6])
@@ -420,9 +419,12 @@ def poems_to_latex(poems):
 
 
 def make_html(poems, pages, pages_small):
+    now = datetime.datetime.utcnow()
+    next_update = now + datetime.timedelta(hours=12)
     with open(os.path.join(tmpdir, "sprog.html"), "w") as f:
         f.write(index_template.render_unicode(poems=poems, pages=pages, pages_small=pages_small,
-                                              suffix_strftime=suffix_strftime))
+                                              suffix_strftime=suffix_strftime,
+                                              now=now, next_update=next_update))
 
 
 def add_submission(poems, link):

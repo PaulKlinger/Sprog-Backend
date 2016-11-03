@@ -115,7 +115,9 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             ${"" if small else "\\vspace{1.5em}"}
+            ${"\\begin{center}\\begin{varwidth}[t]{\\textwidth}" if not breakable else ""}
                 ${poem.content}
+            ${"\\end{varwidth}\\end{center}" if not breakable else ""}
             ${"" if small else "\\vspace{.2em}"}
     \end{tcolorbox}
 % endfor

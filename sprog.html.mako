@@ -102,6 +102,12 @@
     #mobile_download_button {
         background-color: #3B8386; /* Blue */
     }
+    #updated {
+        font-size: 10pt;
+        color: #b1b5bc;
+        padding-top:1em;
+        text-align:center;
+    }
     h1 {
         font-size: 30pt;
         color: #313233;
@@ -190,6 +196,10 @@
                 small pdf<br/>
                 (for mobile)
             </a>
+        </div>
+        <div id="updated">
+            last updated ${now.strftime("%Y-%m-%d %H:%M:%S")} (UTC)<br/>
+            next scheduled update ${next_update.strftime("%Y-%m-%d %H:%M:%S")} (UTC).
         </div>
     </div>
 
