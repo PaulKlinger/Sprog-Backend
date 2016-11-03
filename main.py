@@ -3,13 +3,13 @@ from mako.template import Template
 import subprocess
 import datetime
 import os
-import pypandoc
 import requests
 import shutil
 import re
 import json
 import statistics
 
+from md_to_latex import md_to_latex
 from stats_n_graphs import id_from_link, posting_time_stats, make_graphs
 from utility import suffix_strftime
 from drive_upload import upload_sprog_to_drive
@@ -62,22 +62,13 @@ def get_all_parents(obj):
         parents.append(p)
 
 
-def md2latex(md):
-    # remove whitespace between [title] and (url) in link (reddit ignores this)
-    md = re.sub(r"\[([^\]]*?)\]\s+\(http", "[\1](http", md)
-    # if \n is not added md="." causes an error
-    return pypandoc.convert_text("\n" + md, "latex", format="md")
-
-
 class Poem(object):
-    def __init__(self, timestamp, link, content,
-                 submission_user, submission_content, submission_url, submission_title,
+    def __init__(self, timestamp, link,
+                 submission_user, submission_url, submission_title,
                  parents, noimg, imgfilename, orig_content, orig_submission_content, gold, score):
         self.datetime = timestamp
         self.link = link
-        self.content = content
         self.submission_user = submission_user
-        self.submission_content = submission_content
         self.submission_url = submission_url
         self.submission_title = submission_title
         self.parents = parents
@@ -98,35 +89,53 @@ class Poem(object):
         if not is_submission:
             submission, parent_comments = get_all_parents(comment)
             for p in parent_comments:
-                parents.append({"author": username_escape(p.author), "body": md2latex(p.body),
+                parents.append({"author": username_escape(p.author),
                                 "orig_body": p.body, "link": p.permalink, "timestamp": p.created_utc,
                                 "gold": p.gilded, "score": p.score})
 
             submission_user = username_escape(submission.author)
-            submission_content = md2latex(submission.selftext)
 
             if not submission.is_self:
                 submission_url = submission.url
 
-            # workaround for 2013-12-18 21:14:00 post
-            submission_content = submission_content.replace("\\($\\)", "\$")
-
             submission_title = title_escape(submission.title)
-            content = md2latex(comment.body)
         else:
             submission_title = title_escape(comment.title)
-            submission_content = ""
             submission_user = username_escape(comment.author)
             if not comment.is_self:
                 submission_url = comment.url
-            content = md2latex(comment.selftext)
 
         noimg = False
         imgfilename = None
-        return cls(timestamp, link, content, submission_user, submission_content, submission_url, submission_title,
+        return cls(timestamp, link, submission_user, submission_url, submission_title,
                    parents, noimg, imgfilename, comment.body if not is_submission else comment.selftext,
                    submission.selftext if not is_submission else "",
                    comment.gilded, comment.score)
+
+    def poem_latex(self):
+        latex = md_to_latex(self.orig_content)
+        if self.datetime < datetime.datetime(year=2013, month=2, day=11):
+            # in sprog's early poems there is a double newline between each line, not just stanza
+            # this is turned into \\ here
+            latex = re.sub("(?:(?<!})\n\n(?!\\\\emph))|(?:(?<=})\n\n(?=\\\\emph))|(?:(?<=},)\n\n(?=\\\\emph))",
+                           r"~\\\\", latex)
+        # replace single dots with fleurons
+        fleuron_tex = r"\n\n\\hfill\\includegraphics[width=1em, height=1em]{../fleuron.png}\\hspace*{\\fill}\n\n"
+        latex = re.sub(r"\\begin\{itemize\}\s*\\item\s*\\end\{itemize\}",
+                       fleuron_tex, latex)
+        # replace single stars with fleurons
+        latex = re.sub(r"(?:^|\\\\)(?:\s|~)*?\*(?:\s|~)*?(?:$|\\\\)", fleuron_tex, latex, flags=re.MULTILINE)
+
+        # disable verse environment during blockquote
+        # (verse messes up the indentation (text overlaps the line to the left))
+        latex = latex.replace(r"\begin{blockquote}", r"\end{verse}\begin{blockquote}")
+        latex = latex.replace(r"\end{blockquote}", r"\end{blockquote}\begin{verse}")
+
+        latex = "\\begin{center}\\begin{varwidth}[t]{\\textwidth}\\begin{verse}" \
+                "\n%s\n\\end{verse}\\end{varwidth}\\end{center}" % latex
+
+        latex = re.sub(r"\\begin\{verse\}\s*\\end\{verse\}", "", latex)
+        return latex
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -161,9 +170,7 @@ def save_poems_json(poems, filename):
         struct.append({
             "timestamp": (p.datetime - datetime.datetime(1970, 1, 1)).total_seconds(),
             "link": p.link,
-            "content": p.content,
             "submission_user": p.submission_user,
-            "submission_content": p.submission_content,
             "submission_url": p.submission_url,
             "submission_title": p.submission_title,
             "noimg": p.noimg,
@@ -189,9 +196,7 @@ def load_poems_json(filename):
                     poems.append(Poem(
                         timestamp=datetime.datetime.utcfromtimestamp(p["timestamp"]),
                         link=p["link"],
-                        content=p["content"],
                         submission_user=p["submission_user"],
-                        submission_content=p["submission_content"],
                         submission_url=p["submission_url"],
                         submission_title=p["submission_title"],
                         parents=p["parents"],
@@ -262,7 +267,7 @@ def download_image(imgurl, imgfilename):
 
 
 def get_images_from_tex(tex, timestamp):
-    for m in re.finditer(r"(?:\\href{)?(https?://\S+/[\w/.-?]+)(?:}{(.*?)})?", tex,
+    for m in re.finditer(r"(?:\\href{)?(?:\\url{)(https?://\S+/[\w/.-?]+)(?: })(?: }{(.*?)})?", tex,
                          re.MULTILINE | re.DOTALL):
 
         imgurl = get_image_url_from_link(m.group(1))
@@ -300,61 +305,10 @@ def process_images():
     subprocess.call(command, shell=True)
 
 
-def process_latex(latex):
-    """Replace various LaTeX expressions produced by pypandoc with correct ones
-
-    currently Reddit superscript notation and section headings (otherwise they appear in the PDF TOC)
-    this should really be done earlier but I don't want to redownload everything...
-    """
-
-    #############
-    # Superscripts
-    #############
-    # first undo the substitution done by pypandoc (why do I use it again...)
-    while True:
-        i = latex.find(r"\textsuperscript{")
-        if i == -1:
-            break
-        latex = latex[:i] + "^" + latex[i + len(r"\textsuperscript{"):].replace("}", "", 1)
-    latex = latex.replace(r"\^{}", "^")
-
-    # then substitute the correct ones
-    platex = ""
-    sup = 0
-    for s in latex:
-        if s == "^":
-            sup += 1
-            platex += r"\textsuperscript{"
-            continue
-        if sup > 0 and s in (" ", "\n"):
-            platex += "}" * sup
-            sup = 0
-        platex += s
-
-    #########
-    # section headings
-    #########
-    platex = platex.replace(r"\section{", r"\textbf{\Large ")
-    platex = platex.replace(r"\subsection{", r"\textbf{\large ")
-
-    ########
-    # format urls
-    ########
-    # this turns urls into links but also allows latex to put linebreaks in them
-    platex = re.sub(r"\s(https?://\S+/(?:[\w/.-?_]|\\_)+)", r"\\url{\1}", platex)
-
-    #######
-    # dots to fleurons
-    #######
-    platex = re.sub(r"\\begin\{itemize\}\s*\\item\s*\\end\{itemize\}",
-                    r"\r\n\r\n\\hfill\\includegraphics[width=1em, height=1em]{../fleuron.png}\\hspace*{\\fill}\r\n\r\n",
-                    platex)
-    return platex
-
-
 def make_snippet(tex):
     """"strips out newlines and links (used for top gilded list in statistics)"""
-
+    tex = tex.replace("\\begin{center}\\begin{varwidth}[t]{\\textwidth}\\begin{verse}", "")
+    tex = tex.replace("\\end{verse}\\end{varwidth}\\end{center}", "")  # veeery short poems??
     tex = tex.replace(r"\\", " ").replace("\r\n", " ")
     tex = re.sub(r"\\href\{.*?\}\{(.*?)\}", r"\1", tex, re.MULTILINE)
     snip = " ".join(tex.split(" ")[:6])
@@ -363,7 +317,11 @@ def make_snippet(tex):
 
 
 def compile_latex(latexfile):
-    command = "xelatex -interaction nonstopmode {}".format(latexfile)
+    try:
+        os.remove(os.path.join(tmpdir, latexfile[:-3] + "aux"))
+    except OSError:
+        pass
+    command = "xelatex {}".format(latexfile)
     subprocess.run(command, cwd=tmpdir, shell=True, )
     res = subprocess.run(command, cwd=tmpdir, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -380,7 +338,6 @@ def make_compile_latex(poems):
                                     make_snippet=make_snippet, id_from_link=id_from_link,
                                     posting_time_stats=posting_time_stats, statistics=statistics,
                                     user_name=user_name.replace("_", "\\_"))
-    latex = process_latex(latex)
 
     with open(os.path.join(tmpdir, latexfile), "wb") as f:
         f.write(latex.encode("utf-8"))
@@ -389,7 +346,6 @@ def make_compile_latex(poems):
                                     make_snippet=make_snippet, id_from_link=id_from_link,
                                     posting_time_stats=posting_time_stats, statistics=statistics,
                                     user_name=user_name.replace("_", "\\_"))
-    latex = process_latex(latex)
 
     with open(os.path.join(tmpdir, "small_" + latexfile), "wb") as f:
         f.write(latex.encode("utf-8"))
@@ -413,7 +369,7 @@ def create_pdf(poems):
 def get_comment_from_link(link):
     submission = r.get_submission(link)
     c = submission.comments[0]
-    if c.permalink != link or c.body == "[deleted]" or c.author is None:
+    if c.permalink not in link or c.body in ("[deleted]", "[removed]") or c.body is None:
         raise IndexError("Comment does not exist")
     return c
 
@@ -421,13 +377,12 @@ def get_comment_from_link(link):
 def update_poems(poems, deleted_poems):
     for p in poems:
         print(".", end="", flush=True)
-        if (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=14):
+        if (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=30):
             break
         try:
             c = get_comment_from_link(p.link)
             p.gold = c.gilded
             p.score = c.score
-            p.content = md2latex(c.body)
             p.orig_content = c.body
             if False:  # Don't update comments for now, takes a long time and info is not used.
                 for parent in p.parents:
@@ -453,10 +408,22 @@ def update_poems(poems, deleted_poems):
     return poems_out, deleted_poems
 
 
+def poems_to_latex(poems):
+    for p in poems:
+        p.content = p.poem_latex()
+        p.submission_content = md_to_latex(p.orig_submission_content)
+        for parent in p.parents:
+            if parent["orig_body"]:
+                parent["body"] = md_to_latex(parent["orig_body"])
+            else:
+                print("No orig_body???")
+
+
 def make_html(poems, pages, pages_small):
     with open(os.path.join(tmpdir, "sprog.html"), "w") as f:
         f.write(index_template.render_unicode(poems=poems, pages=pages, pages_small=pages_small,
                                               suffix_strftime=suffix_strftime))
+
 
 def add_submission(poems, link):
     """Add a submission (currently not running automatically because most submissions aren't poems)"""
@@ -479,6 +446,8 @@ def main():
     poems, deleted_poems = update_poems(poems, deleted_poems)
     print("getting new poems")
     poems = get_poems(poems)
+    print("converting markdown to LaTeX")
+    poems_to_latex(poems)
     print("creating pdf")
     poems, pages, pages_small = create_pdf(poems)
     print("make sprog.html")
@@ -504,3 +473,29 @@ if __name__ == "__main__":
 # # I did this manually for the six cases where it occurred.
 # for p in poems[-142:]:
 #     p.content = re.sub("(?:(?<!})\r\n\r\n(?!\\\\emph))|(?:(?<=})\r\n\r\n(?=\\\\emph))", r"\\\\", p.content)
+
+# # this was in load_poems_json to add orig_content to comments without it
+# for parent in p["parents"]:
+#     if parent["orig_body"] is None and "body" in parent and parent["body"] and parent["link"] is None:
+#         print()
+#         print(parent["body"])
+#         print(parent["author"])
+#         print(p["link"] + "?context=10000")
+#         parent_link = input()
+#         if parent_link == "o":
+#             parent["orig_body"] = parent["body"]
+#         elif parent_link == "d":
+#             parent["orig_body"] = "[deleted]"
+#         else:
+#             try:
+#                 c = get_comment_from_link(parent_link[:-1])
+#             except Exception as e:
+#                 print("error:")
+#                 print(e)
+#                 input("enter to continue with next comment")
+#             else:
+#                 print(c.body)
+#                 yn = input("non-empty to accept")
+#                 if yn:
+#                     parent["link"] = c.permalink
+#                     parent["orig_body"] = c.body

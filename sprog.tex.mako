@@ -14,6 +14,7 @@
 \usepackage[export]{adjustbox}
 \usepackage{scalerel}
 \usepackage{fontspec}
+\usepackage{varwidth} % variable width minipage for centering poems
 
 \usepackage{longtable,booktabs}
 \usepackage{fancyvrb}
@@ -33,7 +34,7 @@
 \titlespacing*{\chapter}{0pt}{10pt}{25pt}
 %%%%%%%%%%%%%
 
-\usepackage[hyperfootnotes=false]{hyperref} % needs to be loaded last
+\PassOptionsToPackage{hyphens}{url}\usepackage[hyperfootnotes=false]{hyperref} % needs to be loaded last
 \usepackage{xcolor}
 \hypersetup{
     colorlinks,
@@ -56,6 +57,12 @@
 BoldFont = DroidSerif-Bold_modified.ttf ,
 ItalicFont = DroidSerif-Italic_modified.ttf,
 BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
+
+\definecolor{quotebar}{RGB}{150, 150, 150}
+\newtcolorbox{blockquote}{blanker, breakable,
+      left=3mm, right=3mm, top=1mm, bottom=1mm,
+      borderline west={1pt}{0pt}{quotebar},
+      before upper=\indent, parbox=false}
 
 % if small:
 \setlength{\leftmargini}{1em}
@@ -107,9 +114,9 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
     \begin{tcolorbox}[enhanced, colback=poemtitle!5, colframe=poemtitle, ${breakable}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
-            \begin{verse}
+            ${"" if small else "\\vspace{1.5em}"}
                 ${poem.content}
-            \end{verse}
+            ${"" if small else "\\vspace{.2em}"}
     \end{tcolorbox}
 % endfor
 \chapter[Statistics]{\titlefont{Statistics}}
