@@ -104,15 +104,17 @@ class LaTeXRenderer(mistune_modified.Renderer):
         return escape(text)
 
     def autolink(self, link, is_email=False):
-        return r'\url{%s }' % link
+        link = link.replace(r"\)", ")").replace(r"\(", "(")
+        return r'\url{%s}' % link
 
     def link(self, link, title, text):
+        link = link.replace(r"\)", ")").replace(r"\(", "(")
         if not text:
             text = link
         if link[0] == "#":
             # link to same page object / reddit image thingy
             return "[%s]" % link[1:]
-        return r"\href{%s }{%s}" % (link.replace("#", "\#{}"), escape(text))
+        return r"\href{%s}{%s}" % (link.replace("#", "\#{}"), escape(text))
 
     def image(self, src, title, text):
         # should never be called

@@ -266,7 +266,7 @@ def download_image(imgurl, imgfilename):
 
 
 def get_images_from_tex(tex, timestamp):
-    for m in re.finditer(r"(?:\\href{)?(?:\\url{)(https?://\S+/[\w/.-?]+)(?: })(?: }{(.*?)})?", tex,
+    for m in re.finditer(r"(?:\\href{)?(?:\\url{)?(https?://\S+/[\w/.\-?]+)(?:(?:}{(.*?)})|})?", tex,
                          re.MULTILINE | re.DOTALL):
 
         imgurl = get_image_url_from_link(m.group(1))

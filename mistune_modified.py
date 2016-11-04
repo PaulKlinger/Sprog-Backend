@@ -113,7 +113,7 @@ class BlockGrammar(object):
     )
 
     newline = re.compile(r'^\n+')
-    
+
     #################################################
     # MODIFIED block_code pattern
     # WAS:
@@ -123,7 +123,7 @@ class BlockGrammar(object):
 
     # this excludes blank lines following a block code environment from it
     #####################################################
-    
+
     fences = re.compile(
         r'^ *(`{3,}|~{3,}) *(\S+)? *\n'  # ```lang
         r'([\s\S]+?)\s*'
@@ -188,10 +188,10 @@ class BlockGrammar(object):
 class BlockLexer(object):
     """Block level lexer for block grammars."""
     grammar_class = BlockGrammar
-    
+
     ##########################################
     # MODIFIED
-    # from 
+    # from
     # default_rules = [
     #     'newline', 'hrule', 'block_code', 'fences', 'heading',
     #     'nptable', 'lheading', 'block_quote',
@@ -479,10 +479,10 @@ class InlineGrammar(object):
         )
     )
     autolink = re.compile(r'^<([^ >]+(@|:)[^ >]+)>')
-    
+
     ###########################################
     # MODIFIED
-    # from: 
+    # from:
     # link = re.compile(
     #     r'^!?\[('
     #     r'(?:\[[^^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*'
@@ -493,26 +493,27 @@ class InlineGrammar(object):
     link = re.compile(
         r'^!?\[('
         r'(?:\[[^^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*'
-        ')\\] *\n? *\\('
+        r')\] *\n? *\('
         r'''\s*(<)?([\s\S]*?)(?(2)>)(?:\s+['"]([\s\S]*?)['"])?\s*'''
-        r'\)'
+        r'(?<!\\)\)'
     )
     # reddit ignores spaces and a single newline between the text and url of a link
+    # added negative lookbehind (?<!\\) at the end to match urls like http://test.com/\(asd\)
     ####################################
-    
+
     reflink = re.compile(
         r'^!?\[('
         r'(?:\[[^^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*'
         r')\]\s*\[([^^\]]*)\]'
     )
     nolink = re.compile(r'^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]')
-    url = re.compile(r'''^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])''')
+    url = re.compile(r'''^(https?:\/\/[^\s<]+(?:\\\)|[^<.,:;"')\]\s]))''')
     double_emphasis = re.compile(
         r'^_{2}([\s\S]+?)_{2}(?!_)'  # __word__
         r'|'
         r'^\*{2}([\s\S]+?)\*{2}(?!\*)'  # **word**
     )
-    
+
     ###########################################################
     # MODIFIED:
     # emphasis = re.compile(
@@ -523,7 +524,7 @@ class InlineGrammar(object):
     # In the second case I exclude the ^ character, i.e. [^\*] becomes [^\*^].
     # This allows superscripts to be processed after mistune is finished (hacky but works...)
     #############################################################
-    
+
     emphasis = re.compile(
         r'^\b_((?:__|[^_])+?)_\b'  # _word_
         r'|'
