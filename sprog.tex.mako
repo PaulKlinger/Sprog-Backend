@@ -40,7 +40,8 @@
     colorlinks,
     linkcolor={red!50!black},
     citecolor={blue!50!black},
-    urlcolor={blue!80!black}
+    urlcolor={blue!80!black},
+    pdftitle={The Collected Reddit Poetry of /u/Poem\_for\_your\_sprog}
 }
 \definecolor{babyblue}{rgb}{0.54, 0.81, 0.94}
 \definecolor{posttitle}{RGB}{49, 107, 38}
