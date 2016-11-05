@@ -114,7 +114,7 @@ class LaTeXRenderer(mistune_modified.Renderer):
         if link[0] == "#":
             # link to same page object / reddit image thingy
             return "[%s]" % link[1:]
-        return r"\href{%s}{%s}" % (link.replace("#", "\#{}"), escape(text))
+        return r"\href{%s}{%s}" % (link.replace("#", "\#{}"), text)
 
     def image(self, src, title, text):
         # should never be called

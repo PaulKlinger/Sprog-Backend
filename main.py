@@ -62,6 +62,31 @@ def get_all_parents(obj):
         parents.append(p)
 
 
+def poem_md_to_latex(md, dt):
+    latex = md_to_latex(md)
+    if dt < datetime.datetime(year=2013, month=2, day=11):
+        # in sprog's early poems there is a double newline between each line, not just stanza
+        # this is turned into \\ here
+        latex = re.sub("(?:(?<!})\n\n(?!\\\\emph))|(?:(?<=})\n\n(?=\\\\emph))|(?:(?<=},)\n\n(?=\\\\emph))",
+                       r"~\\\\", latex)
+    # replace single dots with fleurons
+    fleuron_tex = r"\n\n\\hfill\\includegraphics[width=1em, height=1em]{../fleuron.png}\\hspace*{\\fill}\n\n"
+    latex = re.sub(r"\\begin\{itemize\}\s*\\item\s*\\end\{itemize\}",
+                   fleuron_tex, latex)
+    # replace single stars with fleurons
+    latex = re.sub(r"(?:^|\\\\)(?:\s|~)*?\*(?:\s|~)*?(?:$|\\\\)", fleuron_tex, latex, flags=re.MULTILINE)
+
+    # disable verse environment during blockquote
+    # (verse messes up the indentation (text overlaps the line to the left))
+    latex = latex.replace(r"\begin{blockquote}", r"\end{verse}\begin{blockquote}")
+    latex = latex.replace(r"\end{blockquote}", r"\end{blockquote}\begin{verse}")
+
+    latex = "\\begin{verse}\n%s\n\\end{verse}" % latex
+
+    latex = re.sub(r"\\begin\{verse\}\s*\\end\{verse\}", "", latex)
+    return latex
+
+
 class Poem(object):
     def __init__(self, timestamp, link,
                  submission_user, submission_url, submission_title,
@@ -113,28 +138,7 @@ class Poem(object):
                    comment.gilded, comment.score)
 
     def poem_latex(self):
-        latex = md_to_latex(self.orig_content)
-        if self.datetime < datetime.datetime(year=2013, month=2, day=11):
-            # in sprog's early poems there is a double newline between each line, not just stanza
-            # this is turned into \\ here
-            latex = re.sub("(?:(?<!})\n\n(?!\\\\emph))|(?:(?<=})\n\n(?=\\\\emph))|(?:(?<=},)\n\n(?=\\\\emph))",
-                           r"~\\\\", latex)
-        # replace single dots with fleurons
-        fleuron_tex = r"\n\n\\hfill\\includegraphics[width=1em, height=1em]{../fleuron.png}\\hspace*{\\fill}\n\n"
-        latex = re.sub(r"\\begin\{itemize\}\s*\\item\s*\\end\{itemize\}",
-                       fleuron_tex, latex)
-        # replace single stars with fleurons
-        latex = re.sub(r"(?:^|\\\\)(?:\s|~)*?\*(?:\s|~)*?(?:$|\\\\)", fleuron_tex, latex, flags=re.MULTILINE)
-
-        # disable verse environment during blockquote
-        # (verse messes up the indentation (text overlaps the line to the left))
-        latex = latex.replace(r"\begin{blockquote}", r"\end{verse}\begin{blockquote}")
-        latex = latex.replace(r"\end{blockquote}", r"\end{blockquote}\begin{verse}")
-
-        latex = "\\begin{verse}\n%s\n\\end{verse}" % latex
-
-        latex = re.sub(r"\\begin\{verse\}\s*\\end\{verse\}", "", latex)
-        return latex
+        return poem_md_to_latex(self.orig_content, self.datetime)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -336,7 +340,7 @@ def make_compile_latex(poems):
     latex = template.render_unicode(poems=poems, small=False,
                                     make_snippet=make_snippet, id_from_link=id_from_link,
                                     posting_time_stats=posting_time_stats, statistics=statistics,
-                                    user_name=user_name.replace("_", "\\_"))
+                                    user_name=user_name.replace("_", "\\_"), poem_md_to_latex=poem_md_to_latex)
 
     with open(os.path.join(tmpdir, latexfile), "wb") as f:
         f.write(latex.encode("utf-8"))
@@ -344,7 +348,7 @@ def make_compile_latex(poems):
     latex = template.render_unicode(poems=poems, small=True,
                                     make_snippet=make_snippet, id_from_link=id_from_link,
                                     posting_time_stats=posting_time_stats, statistics=statistics,
-                                    user_name=user_name.replace("_", "\\_"))
+                                    user_name=user_name.replace("_", "\\_"), poem_md_to_latex=poem_md_to_latex)
 
     with open(os.path.join(tmpdir, "small_" + latexfile), "wb") as f:
         f.write(latex.encode("utf-8"))

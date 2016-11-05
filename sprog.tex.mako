@@ -1,9 +1,9 @@
 \documentclass{report}
 \usepackage[english]{babel}
 % if small:
-\usepackage[paperheight=180mm,paperwidth=120mm,top=.5cm,bottom=.5cm,left=.5cm,right=.5cm]{geometry}
+\usepackage[paperheight=180mm,paperwidth=120mm,top=.25cm,bottom=.25cm,left=.5cm,right=.5cm]{geometry}
 % else:
-\usepackage[a4paper,top=3cm,bottom=4cm]{geometry}
+\usepackage[a4paper,top=2cm,bottom=2.5cm]{geometry}
 % endif
 
 \usepackage[many]{tcolorbox}
@@ -81,12 +81,20 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 {\small For bug reports or suggestions contact /u/Almoturg.\par}
 {\small The newest version of this file is available \href{https://almoturg.com/sprog}{here}.\par}
 \end{titlepage}
+<%poem_links=[p.link for p in poems if p.link]%>
+<%child_poems=[c["link"] for p in poems for c in p.parents if c["link"] in poem_links]%>
+<%poem_n=len(poems)%>
 % for i, poem in enumerate(poems):
-    % if i==0 or (i+1<len(poems) and poem.datetime.year != poems[i-1].datetime.year):
+    % if poem.link in child_poems:
+        <%continue%>
+    % endif
+    <%poem_parents=[c for c in poem.parents if c["author"]=="Poem\\_for\\_your\\_sprog" and c["link"] in poem_links]%>
+    % if i==0 or poem.datetime.year != poems[i-1].datetime.year:
     \chapter[${poem.datetime.year}]{\titlefont{${poem.datetime.year}}}
     %endif
-    \section*{\titlefont{\#${len(poems)-i} -- ${poem.submission_title}\\\
-                ${poem.datetime.strftime("%Y-%m-%d %H:%M:%S")}}}\label{${id_from_link(poem.link)}}
+    \section*{\titlefont{\#${poem_n-len(poem_parents)}${"--%d"%(poem_n) if poem_parents else ""} --- ${poem.submission_title}\\\
+                ${poem.datetime.strftime("%Y-%m-%d %H:%M:%S")}}}
+    <%poem_n-=1+len(poem_parents)%>
     \begin{tcolorbox}[enhanced, colback=posttitle!5,colframe=posttitle,title=/u/${poem.submission_user},breakable]
         % if poem.submission_url is not None:
         \href{${poem.submission_url}}{[Link]}
@@ -100,9 +108,29 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
     \end{tcolorbox}
 
     % for c in poem.parents:
-        \begin{tcolorbox}[enhanced, colback=commenttitle!5,colframe=commenttitle,title=/u/${c["author"]},breakable]
-            ${c["body"]}
-        \end{tcolorbox}
+        % if c["author"] == "Poem\\_for\\_your\\_sprog" and c["link"] in poem_links:
+            <%
+            if ((small and (poem.content.count("\\\\")+poem.content.count("\r\n\r\n")+poem.content.count("\n\n")+poem.content.count("fleuron")*3>24 or len(poem.content)>1200))
+            or (not small and (poem.content.count("\\\\")+poem.content.count("\r\n\r\n")+poem.content.count("\n\n")+poem.content.count("fleuron")*3>40 or len(poem.content)>3000))):
+                breakable = "breakable,"
+            else:
+                breakable = ""
+            %>
+            <%c_poem = [p for p in poems if p.link==c["link"]][0]%>
+            \begin{tcolorbox}[enhanced, label=${id_from_link(c_poem.link)}, colback=poemtitle!5, colframe=poemtitle, ${breakable}
+                      title={/u/${user_name} \href{${c["link"]}}{\color{babyblue}{[Link]}} %
+                      ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(c_poem.gold)+"$" if c_poem.gold else ""}}]
+                ${"" if small else "\\vspace{1.5em}"}
+                ${"\\begin{center}\\begin{varwidth}[t]{\\textwidth}" if not breakable else ""}
+                    ${poem_md_to_latex(c["orig_body"], poem.datetime)}
+                ${"\\end{varwidth}\\end{center}" if not breakable else ""}
+                ${"" if small else "\\vspace{.2em}"}
+            \end{tcolorbox}
+        % else:
+            \begin{tcolorbox}[enhanced,colback=commenttitle!5,colframe=commenttitle,title=/u/${c["author"]},breakable]
+                ${c["body"]}
+            \end{tcolorbox}
+        % endif
     % endfor
     <%
     if ((small and (poem.content.count("\\\\")+poem.content.count("\r\n\r\n")+poem.content.count("\n\n")+poem.content.count("fleuron")*3>24 or len(poem.content)>1200))
@@ -111,7 +139,7 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
     else:
         breakable = ""
     %>
-    \begin{tcolorbox}[enhanced, colback=poemtitle!5, colframe=poemtitle, ${breakable}
+    \begin{tcolorbox}[enhanced, label=${id_from_link(poem.link)}, colback=poemtitle!5, colframe=poemtitle, ${breakable}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             ${"" if small else "\\vspace{1.5em}"}
