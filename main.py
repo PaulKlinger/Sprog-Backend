@@ -14,6 +14,7 @@ from stats_n_graphs import id_from_link, posting_time_stats, make_graphs
 from utility import suffix_strftime
 from drive_upload import upload_sprog_to_drive
 from s3_upload import upload_to_s3
+from namecheap_ftp_upload import upload_sprog_to_namecheap
 
 user_name = "Poem_for_your_sprog"
 template = Template(filename="sprog.tex.mako")
@@ -462,6 +463,8 @@ def main():
     upload_to_s3()
     print("uploading to Google Drive")
     upload_sprog_to_drive()
+    print("uploading to namecheap")
+    upload_sprog_to_namecheap()
     print("saving poems")
     save_poems_json(poems, "poems.json")
     save_poems_json(deleted_poems, "deleted_poems.json")
