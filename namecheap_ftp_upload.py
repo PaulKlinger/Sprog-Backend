@@ -10,5 +10,3 @@ def upload_sprog_to_namecheap():
             sftp.put("small_sprog.pdf", "sprog_small.pdf")
             print("uploading sprog.html")
             sftp.put("tmp/sprog.html", "sprog.html")
-
-upload_sprog_to_namecheap()
