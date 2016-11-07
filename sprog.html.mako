@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <title>The Unofficial Poem_for_your_sprog Collection</title>
     <meta name="author" content="/u/Almoturg">
+    <meta name="description" content="A pdf collection of all ${len(poems)} Reddit poems by /u/Poem_for_your_sprog."/>
     <link rel="icon" type="image/png" href="fleuron.png">
     <link href="https://fonts.googleapis.com/css?family=Patua+One|Roboto" rel="stylesheet">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -114,7 +115,7 @@
         line-height: 1.3;
         font-weight: normal;
     }
-    h2 {
+    #author {
         font-size:20pt;
         color: #b1b5bc;
         font-weight: normal;
@@ -129,7 +130,7 @@
             padding-right: 5vw;
         }
         h1 {font-size: 20pt}
-        h2 {font-size: 15pt}
+        #author {font-size: 15pt}
         #stats li {font-size: 12pt}
         .button {
             font-size: 13pt;
@@ -141,7 +142,7 @@
     }
     @media screen and (max-width: 350px) {
         h1 {font-size: 18pt}
-        h2 {font-size: 14pt}
+        #author {font-size: 14pt}
 
     }
 </style>
@@ -167,8 +168,9 @@
 
             /u/Poem_for_your_sprog<br/>
 
-            Collection</h1>
-            <h2>by /u/Almoturg</h2>
+            Collection<br/>
+            <span id="author">by /u/Almoturg</span>
+            </h1>
         </div>
         <div id="stats">
             <ul>
