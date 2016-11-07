@@ -17,7 +17,7 @@
     }
     body{
         display: flex;
-        background-image: url("bg.jpg");
+        background-image: url("/bg.jpg");
         background-position: right bottom;
         background-repeat: no-repeat;
         background-size: cover;
@@ -63,7 +63,7 @@
     }
     #stats ul {padding: 0;}
     #stats li:before {
-        background-image: url('fleuron.png');
+        background-image: url("/fleuron.png");
         background-size: 1.1em 1.1em;
         background-repeat: no-repeat;
         background-position: center;
