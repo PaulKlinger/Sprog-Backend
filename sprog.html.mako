@@ -178,7 +178,7 @@
             </ul>
         </div>
         <div id="download">
-            <a href="sprog.pdf" id="download_button" class="button"
+            <a href="/sprog.pdf" id="download_button" class="button"
                onclick="ga('send', 'event',
                         {eventCategory: 'download',
                          eventAction: 'click',
@@ -187,7 +187,7 @@
                 full-size pdf<br/>
                 (for desktop/print)
             </a>
-            <a href="sprog_small.pdf" id="mobile_download_button" class="button"
+            <a href="/sprog_small.pdf" id="mobile_download_button" class="button"
                onclick="ga('send', 'event',
                         {eventCategory: 'download',
                          eventAction: 'click',
