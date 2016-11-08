@@ -31,7 +31,7 @@ def upload_to_s3():
                                   'CacheControl': 'public',
                                   'Expires': cache_expire})
     now = datetime.now()
-    if now.weekday() == 2:
+    if now.weekday() == 2:  # backup poems on wednesday
         bucket.upload_file("poems.json",
                            "poems_{}_{:02d}_{:02d}.json".format(now.year, now.month, now.day))
         bucket.upload_file("deleted_poems.json",
