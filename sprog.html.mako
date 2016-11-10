@@ -6,7 +6,7 @@
     <title>The Unofficial Poem_for_your_sprog Collection</title>
     <meta name="author" content="/u/Almoturg">
     <meta name="description" content="A pdf collection of all ${len(poems)} Reddit poems by /u/Poem_for_your_sprog."/>
-    <link rel="icon" type="image/png" href="fleuron.png">
+    <link rel="icon" type="image/png" href="/fleuron.png">
     <link href="https://fonts.googleapis.com/css?family=Patua+One|Roboto" rel="stylesheet">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <style>
