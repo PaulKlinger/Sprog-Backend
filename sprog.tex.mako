@@ -164,6 +164,8 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 \item which received a total of ${"{:,}".format(sum(poem.gold or 0 for poem in poems))} months of Reddit gold.
 \item with a median score of ${"{:,.0f}".format(statistics.median(p.score for p in poems if p.score is not None))} karma.
 \item with a combined score of ${"{:,}".format(sum(p.score or 0 for p in poems))} karma.
+\item of which ${sum([1 for p in poems if "timmy" in p.orig_content.lower()])} involve Timmy.
+\item in ${sum([1 for p in poems if "timmy fucking die" in p.orig_content.lower()])} of which Timmy fucking dies.
 \end{itemize}
 
 \section*{\titlefont{Most gilded:}}
