@@ -362,7 +362,6 @@ def make_compile_latex(poems):
 def create_pdf(poems):
     poems = get_images(poems)
     process_images()
-    make_graphs(poems)
     pages, pages_small = make_compile_latex(poems)
     filename = latexfile[:-4] + ".pdf"
     shutil.move(os.path.join(tmpdir, filename), filename)
@@ -455,6 +454,8 @@ def main():
     poems = get_poems(poems)
     print("converting markdown to LaTeX")
     poems_to_latex(poems)
+    print("create graphs")
+    make_graphs(poems)
     print("creating pdf")
     poems, pages, pages_small = create_pdf(poems)
     print("make sprog.html")

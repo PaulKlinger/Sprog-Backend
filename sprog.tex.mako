@@ -11,6 +11,8 @@
 \usepackage[official]{eurosym}
 \usepackage[normalem]{ulem}
 \usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
 \usepackage[export]{adjustbox}
 \usepackage{scalerel}
 \usepackage{fontspec}
@@ -185,4 +187,19 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 \makebox[\textwidth][c]{
 \includegraphics[width=${"1.3" if not small else ""}\textwidth]{monthsplot.pdf}
 }
+
+\begin{figure}[H]
+\captionsetup[subfigure]{justification=centering}
+\begin{subfigure}[b]{\textwidth}
+\centering
+\includegraphics[width=${".9" if small else ""}\textwidth]{rollingkarmaplot.pdf}
+\caption*{rolling 30 day mean of karma per poem}
+\end{subfigure}
+\begin{subfigure}[b]{\textwidth}
+\centering
+\vspace{${2 if small else 3}em}
+\includegraphics[width=${".9" if small else ""}\textwidth]{timekarmaplot.pdf}
+\caption*{rolling 1 hour mean of karma per poem vs. posting time \\ (only times with sufficient poems are shown)}
+\end{subfigure}
+\end{figure}
 \end{document}

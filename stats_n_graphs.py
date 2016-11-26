@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import statistics
 # need to set matplotlib backend before importing pyplot,
 #  else an error occurs if running without gui
@@ -33,7 +33,7 @@ def prettyp_seconds(seconds):
 
 
 def posting_time_stats(poems):
-    diffs = [((p.datetime - datetime.datetime.utcfromtimestamp(p.parents[-1]["timestamp"])).total_seconds(),
+    diffs = [((p.datetime - dt.datetime.utcfromtimestamp(p.parents[-1]["timestamp"])).total_seconds(),
               id_from_link(p.link))
              for p in poems
              if p.parents and p.parents[-1].get("timestamp", None)]
@@ -43,22 +43,42 @@ def posting_time_stats(poems):
 
 
 def make_graphs(poems):
-    months = [p.datetime.strftime("%Y %m") for p in poems]
-    # initialize all months from min to max to zero to account for ones without poems
-    # (this is not actually needed yet)
-    minyear, minmonth = map(int, min(months).split(" "))
-    maxyear, maxmonth = map(int, max(months).split(" "))
-    counts = Counter({"{:02d} {:02d}".format(y, m): 0
-                      for m in range(1, 13)
-                      for y in range(minyear, maxyear + 1)
-                      if not ((y == minyear and m < minmonth)
-                              or (y == maxyear and m > maxmonth))})
-    counts.update(months)
-    data = list(counts.items())
-    data.sort(key=lambda x: x[0])
-    df = pandas.DataFrame(x[1] for x in data)
-    plot = df.plot.bar(legend=False, figsize=(10, 4))
-    ticks = [x[0] if i == 0 or x[0][-2:] == "01" else x[0][-2:] for i, x in enumerate(data)]
+    data = pandas.DataFrame(((p.datetime, p.gold, p.score,
+                          (p.datetime - dt.datetime.utcfromtimestamp(p.parents[-1]["timestamp"])).total_seconds()
+                          if p.parents and "timestamp" in p.parents[-1] else None,
+                          )
+                         for p in poems), columns=("t", "gold", "karma", "delay"))
+    data.sort_values("t", inplace=True)
+    data.set_index("t", inplace=True, drop=False)
+
+    # poems per month
+    monthsdata = data["gold"].resample("1m").count().fillna(0)
+    ticks = ["{} {:02d}".format(x[0].year, x[0].month) if i == 0 or x[0].month == 1 else "{:02d}".format(x[0].month) for
+             i, x in enumerate(monthsdata.items())]
+    plot = monthsdata.plot.bar(figsize=(10, 4))
     plot.set_xticklabels(ticks)
     plot.set_ylabel("# of Poems")
+    plot.set_xlabel("")
     plt.savefig("tmp/monthsplot.pdf", bbox_inches="tight")
+    plt.close()
+
+    # Rolling 30 day mean of poem karma
+    rollplot = (data["karma"].rolling(center=False, window="30d", min_periods=5).mean()
+                .resample("7d").mean().dropna().plot())
+    rollplot.set_xlabel("")
+    rollplot.set_ylabel("karma / poem")
+    plt.savefig("tmp/rollingkarmaplot.pdf", bbox_inches="tight")
+    plt.close()
+
+    # rolling 60min mean of karma vs posting time
+    timekarmaplot = (data.groupby(
+        by=lambda x: dt.datetime.combine(dt.date(1970, 1, 1) if data["t"].loc[x].hour > 6 else dt.date(1970, 1, 2),
+                                         data["t"].loc[x].time())
+        ).mean()["karma"]
+         .rolling(center=False, window="60min", min_periods=20).mean()
+         .resample("6T").mean()
+         .dropna().plot())
+    timekarmaplot.set_ylabel("karma / poem")
+    timekarmaplot.set_xlabel("posting time")
+    plt.savefig("tmp/timekarmaplot.pdf", bbox_inches="tight")
+    plt.close()
