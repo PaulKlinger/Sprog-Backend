@@ -380,8 +380,8 @@ def get_comment_from_link(link):
 def update_poems(poems, deleted_poems):
     for p in poems:
         print(".", end="", flush=True)
-        if (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=30):
-            break
+        #if (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=30):
+        #    break
         try:
             c = get_comment_from_link(p.link)
             p.gold = c.gilded
