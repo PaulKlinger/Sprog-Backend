@@ -82,7 +82,7 @@ def poem_md_to_latex(md, dt):
     latex = latex.replace(r"\begin{blockquote}", r"\end{verse}\begin{blockquote}")
     latex = latex.replace(r"\end{blockquote}", r"\end{blockquote}\begin{verse}")
 
-    latex = "\\begin{verse}\n%s~\n\n\n\\end{verse}" % latex.rstrip("\\\n")
+    latex = "\\begin{verse}\n%s~\n\n\n\\end{verse}" % latex.rstrip("\\\n\r")
 
     latex = re.sub(r"\\begin\{verse\}\s*\\end\{verse\}", "", latex)
     return latex
