@@ -396,7 +396,7 @@ def update_poems(poems, deleted_poems):
 
         except Exception as e:
             print("-------")
-            if isinstance(e, IndexError) and p.submission_user.lower() != username_escape(user_name).lower():
+            if isinstance(e, IndexError) and p.submission_user.lower() != r"poem\_for\_your\_sprog":
                 p.deleted = True
                 print("Poem deleted.")
             print("Error while updating poem")
