@@ -11,4 +11,4 @@ def upload_sprog_to_namecheap():
             print("uploading sprog.html")
             sftp.put("tmp/sprog.html", "sprog.html")
             print("uploading sprog.json")
-            sftp.put("sprog.json", "sprog.json")
+            sftp.put("poems.json", "poems.json")
