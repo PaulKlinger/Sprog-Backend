@@ -464,11 +464,11 @@ def main():
     upload_to_s3()
     print("uploading to Google Drive")
     upload_sprog_to_drive()
-    print("uploading to namecheap")
-    upload_sprog_to_namecheap()
     print("saving poems")
     save_poems_json(poems, "poems.json")
     save_poems_json(deleted_poems, "deleted_poems.json")
+    print("uploading to namecheap")
+    upload_sprog_to_namecheap()
 
 if __name__ == "__main__":
     main()
