@@ -171,6 +171,9 @@ def get_poems(poems=None):
 def save_poems_json(poems, filename):
     struct = []
     for p in poems:
+        for parent in p.parents:
+            del(parent["body"])  # remove converted parent comment body to save space
+
         struct.append({
             "timestamp": (p.datetime - datetime.datetime(1970, 1, 1)).total_seconds(),
             "link": p.link,
