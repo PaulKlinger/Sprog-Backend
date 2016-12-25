@@ -60,6 +60,7 @@
         margin-right: auto;
         padding-top: 50px;
         text-align: center;
+        font-size: 15pt;
     }
     #playstore {
         width: 12em;
