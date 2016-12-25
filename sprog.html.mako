@@ -54,11 +54,21 @@
         box-shadow: 0 0 100px 100px rgba(247, 250, 252, 0.8);
         filter: blur(10px);
     }
-    #stats {
+    #app {
         max-width: 450px;
         margin-left:auto;
         margin-right: auto;
         padding-top: 50px;
+        text-align: center;
+    }
+    #playstore {
+        width: 12em;
+    }
+    #stats {
+        max-width: 450px;
+        margin-left:auto;
+        margin-right: auto;
+        padding-top: 20px;
         padding-bottom: 50px;
         text-align: center;
     }
@@ -171,6 +181,12 @@
             Collection<br/>
             <span id="author">by /u/Almoturg</span>
             </h1>
+        </div>
+        <div id="app">
+            Android app now available!<br>
+            <a href='http://play.google.com/store/apps/details?id=com.almoturg.sprog&utm_source=website&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
+                <img id="playstore" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/>
+            </a>
         </div>
         <div id="stats">
             <ul>
