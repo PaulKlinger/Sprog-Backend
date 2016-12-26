@@ -152,17 +152,20 @@ def get_poems(poems=None):
     comments = user.get_comments(limit=comment_limit)
     newpoems = []
     known_links = [p.link.split("//")[1] for p in poems]
+    now = datetime.datetime.utcnow()
     for i, c in enumerate(comments):
-        # break if a known poem is encountered
-        # checking only poem[0] does not suffice as comments may be deleted
-        if poems and c.permalink.split("//")[1] in known_links:
-            break
         print(".", end="", flush=True)
-        try:
-            newpoems.append(Poem.from_comment(c))
-        except Exception as e:
-            print(e)
-            print(len(poems))
+        if c.permalink.split("//")[1] not in known_links:
+            try:
+                newpoems.append(Poem.from_comment(c))
+            except Exception as e:
+                print(e)
+                print(len(poems))
+        c_time = datetime.datetime.utcfromtimestamp(c.created_utc)
+        # break if poem is older than 30 days (not when we get the first old poem)
+        # this way poems which were skipped due to errors are tried again the next time
+        if now - c_time > datetime.timedelta(days=30):
+            break
 
     print()
     return newpoems + poems
