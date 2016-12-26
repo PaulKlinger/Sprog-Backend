@@ -23,14 +23,7 @@ latexfile = "sprog.tex"
 tmpdir = "tmp"
 comment_limit = None
 
-r = praw.Reddit(user_agent="Python:Sprog:dev (by /u/Almoturg)")
-
-
-def get_parent(obj):
-    assert type(obj) == praw.objects.Comment
-    if obj.is_root:
-        return obj.submission
-    return r.get_info(thing_id=obj.parent_id)
+r = praw.Reddit()
 
 
 def username_escape(author):
@@ -51,12 +44,12 @@ def title_escape(title):
 
 def get_all_parents(obj):
     parents = []
-    assert type(obj) == praw.objects.Comment
+    assert isinstance(obj, praw.models.reddit.comment.Comment)
     p = obj
     while True:
-        p = get_parent(p)
+        p = p.parent()
         print(p.id)
-        if type(p) == praw.objects.Submission:
+        if isinstance(p, praw.models.reddit.submission.Submission):
             parents.reverse()
             return p, parents
 
@@ -108,7 +101,7 @@ class Poem(object):
     @classmethod
     def from_comment(cls, comment, is_submission=False):
         timestamp = datetime.datetime.utcfromtimestamp(comment.created_utc)
-        link = comment.permalink
+        link = "https://www.reddit.com" + comment.permalink()
 
         parents = []
         submission_url = None
@@ -116,7 +109,9 @@ class Poem(object):
             submission, parent_comments = get_all_parents(comment)
             for p in parent_comments:
                 parents.append({"author": username_escape(p.author),
-                                "orig_body": p.body, "link": p.permalink, "timestamp": p.created_utc,
+                                "orig_body": p.body,
+                                "link": "https://www.reddit.com/" + p.permalink(),
+                                "timestamp": p.created_utc,
                                 "gold": p.gilded, "score": p.score})
 
             submission_user = username_escape(submission.author)
@@ -148,14 +143,14 @@ class Poem(object):
 def get_poems(poems=None):
     if poems is None:
         poems = []
-    user = r.get_redditor(user_name)
-    comments = user.get_comments(limit=comment_limit)
+    user = r.redditor(user_name)
+    comments = user.comments.new()
     newpoems = []
     known_links = [p.link.split("//")[1] for p in poems]
     now = datetime.datetime.utcnow()
     for i, c in enumerate(comments):
         print(".", end="", flush=True)
-        if c.permalink.split("//")[1] not in known_links:
+        if "www.reddit.com" + c.permalink() not in known_links:
             try:
                 newpoems.append(Poem.from_comment(c))
             except Exception as e:
@@ -379,14 +374,16 @@ def create_pdf(poems):
 
 
 def get_comment_from_link(link):
-    submission = r.get_submission(link)
-    c = submission.comments[0]
-    if c.permalink not in link or c.body in ("[deleted]", "[removed]") or c.body is None:
+    comment_id = link.split("/")[-1]
+    c = r.comment(comment_id)
+    if not isinstance(c, praw.models.reddit.comment.Comment) or c.permalink() not in link \
+            or c.body in ("[deleted]", "[removed]") or c.body is None:
         raise IndexError("Comment does not exist")
     return c
 
 
 def update_poems(poems, deleted_poems):
+    # TODO: add submission updating (for poems that are submissions)
     for p in poems:
         print(".", end="", flush=True)
         if (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=30):
@@ -445,7 +442,7 @@ def add_submission(poems, link):
     if link in (p.link for p in poems):
         print("submission already stored")
         return
-    submission = r.get_submission(link)
+    submission = r.submission(url=link)
     time = datetime.datetime.utcfromtimestamp(submission.created_utc)
     for i in range(len(poems) - 1):
         if poems[i].datetime > time > poems[i + 1].datetime:
