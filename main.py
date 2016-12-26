@@ -168,7 +168,9 @@ def get_poems(poems=None):
             break
 
     print()
-    return newpoems + poems
+    poems = newpoems + poems
+    poems.sort(key=lambda x: x.datetime, reverse=True)
+    return poems
 
 
 def save_poems_json(poems, filename):
