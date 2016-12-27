@@ -218,7 +218,8 @@
         </div>
         <div id="updated">
             last updated ${now.strftime("%Y-%m-%d %H:%M:%S")} (UTC)<br/>
-            next scheduled update ${next_update.strftime("%Y-%m-%d %H:%M:%S")} (UTC).
+            next scheduled update ${next_update.strftime("%Y-%m-%d %H:%M:%S")} (UTC).<br/>
+            Google Play and the Google Play logo are trademarks of Google Inc.
         </div>
     </div>
 
