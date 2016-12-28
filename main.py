@@ -110,7 +110,7 @@ class Poem(object):
             for p in parent_comments:
                 parents.append({"author": username_escape(p.author),
                                 "orig_body": p.body,
-                                "link": "https://www.reddit.com/" + p.permalink(),
+                                "link": "https://www.reddit.com" + p.permalink(),
                                 "timestamp": p.created_utc,
                                 "gold": p.gilded, "score": p.score})
 
