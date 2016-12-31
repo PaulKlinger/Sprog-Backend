@@ -125,7 +125,7 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
                       ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(c_poem.gold)+"$" if c_poem.gold else ""}}]
                 ${"" if small else "\\vspace{1.5em}"}
                 ${"\\begin{center}\\begin{varwidth}[t]{\\textwidth}" if not breakable else ""}
-                    ${poem_md_to_latex(c["orig_body"], poem.datetime)}
+                    ${c_poem.content}
                 ${"\\end{varwidth}\\end{center}" if not breakable else ""}
                 ${"" if small else "\\vspace{.2em}"}
             \end{tcolorbox}

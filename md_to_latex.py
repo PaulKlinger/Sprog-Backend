@@ -1,8 +1,9 @@
 import mistune_modified
 import re
+import datetime
 
 
-def escape(text):
+def escape(text: str) -> str:
     out = ""
     superscript = 0
     singlecharescapes = {
@@ -138,7 +139,7 @@ class LaTeXRenderer(mistune_modified.Renderer):
         return escape(text)
 
 
-def process_superscript(source):
+def process_superscript(source: str) -> str:
     superscript = 0
     superpar = False
     out = ""
@@ -175,7 +176,7 @@ renderer = LaTeXRenderer()
 parser = mistune_modified.Markdown(renderer=renderer)
 
 
-def md_to_latex(source):
+def md_to_latex(source: str) -> str:
     parsed = parser(source)
     out = process_superscript(parsed)
     # latex quotes
@@ -183,3 +184,44 @@ def md_to_latex(source):
     out = re.sub(r'(?<=\w)"(?=\s|$)', "''", out, re.MULTILINE)
     out = re.sub(r"(?:(?<=^)'(?=[^']))|(?:(?<=\s)'(?=[^']))", "`", out, re.MULTILINE)
     return out
+
+
+def username_escape(author) -> str:
+    if author is None:
+        return "(deleted user)"
+    else:
+        return author.name.replace("_", "\_")
+
+
+def title_escape(title: str) -> str:
+    rep = [("_", "\\_"), ("&", "\&"), ("&amp;", "\\&"), ("$", "\\$"), ("\\(", "("),
+           ("\\)", ")"), ("#", "\\#"), ("%", "\\%"),
+           ]
+    for o, n in rep:
+        title = title.replace(o, n)
+    return title
+
+
+def poem_md_to_latex(md: str, dt: datetime) -> str:
+    latex = md_to_latex(md)
+    if dt < datetime.datetime(year=2013, month=2, day=11):
+        # in sprog's early poems there is a double newline between each line, not just stanza
+        # this is turned into \\ here
+        latex = re.sub("(?:(?<!})\n\n(?!\\\\emph))|(?:(?<=})\n\n(?=\\\\emph))|(?:(?<=},)\n\n(?=\\\\emph))",
+                       r"~\\\\", latex)
+    # replace single dots with fleurons
+    fleuron_tex = r"\n\n\\hfill\\includegraphics[width=1em, height=1em]{../fleuron.png}\\hspace*{\\fill}\n\n"
+    latex = re.sub(r"\\begin\{itemize\}\s*\\item\s*\\end\{itemize\}",
+                   fleuron_tex, latex)
+    # replace single stars with fleurons
+    latex = re.sub(r"(?:^|\\\\)(?:\s|~)*?\*(?:\s|~)*?(?:$|\\\\)", fleuron_tex, latex, flags=re.MULTILINE)
+
+    # disable verse environment during blockquote
+    # (verse messes up the indentation (text overlaps the line to the left))
+    latex = latex.replace(r"\begin{blockquote}", r"\end{verse}\begin{blockquote}")
+    latex = latex.replace(r"\end{blockquote}", r"\end{blockquote}\begin{verse}")
+
+    latex = "\\begin{verse}\n%s~\n\n\n\\end{verse}" % latex.rstrip("\\\n\r")
+
+    latex = re.sub(r"\\begin\{verse\}\s*\\end\{verse\}", "", latex)
+    return latex
