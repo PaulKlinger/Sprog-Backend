@@ -64,8 +64,11 @@ def make_compile_latex(tmpdir: str, latexfile: str, user_name: str, template: Te
 
 def create_pdf(tmpdir: str, latexfile: str, user_name: str,
                template: Template, poems: List[Poem]) -> (List[Poem], int, int):
+    print("Getting Images")
     poems = get_images(tmpdir, poems)
+    print("Processing Images")
     process_images()
+    print("Compiling LaTeX")
     pages, pages_small = make_compile_latex(tmpdir, latexfile, user_name, template, poems)
     filename = latexfile[:-4] + ".pdf"
     shutil.move(os.path.join(tmpdir, filename), filename)

@@ -3,7 +3,8 @@ from typing import List
 import praw
 
 from .md_to_latex import poem_md_to_latex, md_to_latex, title_escape, username_escape
-from .reddit_helpers import get_all_parents, get_comment_from_link
+from .reddit_helpers import get_all_parents, get_comment_from_link, get_comments, CommentMissingException
+from .utility import permalink_to_full_link
 
 
 class Poem(object):
@@ -29,7 +30,7 @@ class Poem(object):
     @classmethod
     def from_comment(cls, comment, is_submission=False):
         timestamp = datetime.datetime.utcfromtimestamp(comment.created_utc)
-        link = "https://www.reddit.com" + comment.permalink()
+        link = permalink_to_full_link(comment.permalink())
 
         parents = []
         submission_url = None
@@ -39,7 +40,7 @@ class Poem(object):
             for p in parent_comments:
                 parents.append({"author": username_escape(p.author),
                                 "orig_body": p.body,
-                                "link": "https://www.reddit.com" + p.permalink(),
+                                "link": permalink_to_full_link(p.permalink()),
                                 "timestamp": p.created_utc,
                                 "gold": p.gilded, "score": p.score})
 
@@ -78,12 +79,10 @@ class Poem(object):
 def get_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem] = None) -> List[Poem]:
     if poems is None:
         poems = []
-    user = reddit.redditor(user_name)
-    comments = user.comments.new()
     newpoems = []
     known_links = [p.link.split("//")[1] for p in poems]
     now = datetime.datetime.utcnow()
-    for i, c in enumerate(comments):
+    for c in get_comments(reddit, user_name):
         print(".", end="", flush=True)
         if "www.reddit.com" + c.permalink() not in known_links:
             try:
@@ -103,7 +102,7 @@ def get_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem] = None) -> 
     return poems
 
 
-def update_poems(reddit: praw.Reddit, poems: List[Poem], deleted_poems: List[Poem]) -> (List[Poem], List[Poem]):
+def update_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem], deleted_poems: List[Poem]) -> (List[Poem], List[Poem]):
     # TODO: add submission updating (for poems that are submissions)
     for p in poems:
         print(".", end="", flush=True)
@@ -123,7 +122,9 @@ def update_poems(reddit: praw.Reddit, poems: List[Poem], deleted_poems: List[Poe
 
         except Exception as e:
             print("-------")
-            if isinstance(e, IndexError) and p.submission_user.lower() != r"poem\_for\_your\_sprog":
+            # if comment is missing and this poem is not actually a submission
+            if isinstance(e, CommentMissingException) \
+                    and p.submission_user.lower() != user_name.replace("_", "\\_").lower():
                 p.deleted = True
                 print("Poem deleted.")
             print("Error while updating poem")
