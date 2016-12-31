@@ -3,8 +3,7 @@ from datetime import datetime, timedelta
 from time import mktime
 import boto3
 
-AWS_ACCESS_KEY = "***REMOVED***"
-AWS_SECRET_KEY = "***REMOVED***"
+from sprog_auth import AWS_ACCESS_KEY, AWS_SECRET_KEY
 
 
 def datetime_to_http_date(dt):
