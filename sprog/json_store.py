@@ -3,7 +3,7 @@ import json
 import datetime
 from typing import List
 
-from poems import Poem
+from .poems import Poem
 
 
 def save_poems_json(poems, filename):

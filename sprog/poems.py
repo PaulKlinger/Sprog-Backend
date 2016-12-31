@@ -2,8 +2,8 @@ import datetime
 from typing import List
 import praw
 
-from md_to_latex import poem_md_to_latex, md_to_latex, title_escape, username_escape
-from reddit_helpers import get_all_parents, get_comment_from_link
+from .md_to_latex import poem_md_to_latex, md_to_latex, title_escape, username_escape
+from .reddit_helpers import get_all_parents, get_comment_from_link
 
 
 class Poem(object):

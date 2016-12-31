@@ -1,6 +1,7 @@
-import mistune_modified
 import re
 import datetime
+
+from . import mistune_modified
 
 
 def escape(text: str) -> str:
@@ -210,7 +211,7 @@ def poem_md_to_latex(md: str, dt: datetime) -> str:
         latex = re.sub("(?:(?<!})\n\n(?!\\\\emph))|(?:(?<=})\n\n(?=\\\\emph))|(?:(?<=},)\n\n(?=\\\\emph))",
                        r"~\\\\", latex)
     # replace single dots with fleurons
-    fleuron_tex = r"\n\n\\hfill\\includegraphics[width=1em, height=1em]{../fleuron.png}\\hspace*{\\fill}\n\n"
+    fleuron_tex = r"\n\n\\hfill\\includegraphics[width=1em, height=1em]{../img/fleuron.png}\\hspace*{\\fill}\n\n"
     latex = re.sub(r"\\begin\{itemize\}\s*\\item\s*\\end\{itemize\}",
                    fleuron_tex, latex)
     # replace single stars with fleurons

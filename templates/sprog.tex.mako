@@ -122,7 +122,7 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
             <%c_poem = [p for p in poems if p.link==c["link"]][0]%>
             \begin{tcolorbox}[enhanced, label=${id_from_link(c_poem.link)}, colback=poemtitle!5, colframe=poemtitle, ${breakable}
                       title={/u/${user_name} \href{${c["link"]}}{\color{babyblue}{[Link]}} %
-                      ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(c_poem.gold)+"$" if c_poem.gold else ""}}]
+                      ${r"\scalerel*{\includegraphics{../img/gold.png}}{B}$\,\times\,"+str(c_poem.gold)+"$" if c_poem.gold else ""}}]
                 ${"" if small else "\\vspace{1.5em}"}
                 ${"\\begin{center}\\begin{varwidth}[t]{\\textwidth}" if not breakable else ""}
                     ${c_poem.content}
@@ -144,7 +144,7 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
     %>
     \begin{tcolorbox}[enhanced, label=${id_from_link(poem.link)}, colback=poemtitle!5, colframe=poemtitle, ${breakable}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
-                      ${r"\scalerel*{\includegraphics{../gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
+                      ${r"\scalerel*{\includegraphics{../img/gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
             ${"" if small else "\\vspace{1.5em}"}
             ${"\\begin{center}\\begin{varwidth}[t]{\\textwidth}" if not breakable else ""}
                 ${poem.content}
@@ -173,7 +173,7 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 \section*{\titlefont{Most gilded:}}
 \begin{enumerate}
 % for p in sorted(poems, key=lambda x: x.gold or 0, reverse=True)[:15]:
-\item \scalerel*{\includegraphics{../gold.png}}{B}\makebox[1cm]{$\,\times\,${p.gold}$\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
+\item \scalerel*{\includegraphics{../img/gold.png}}{B}\makebox[1cm]{$\,\times\,${p.gold}$\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
 

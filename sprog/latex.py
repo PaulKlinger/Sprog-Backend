@@ -6,9 +6,9 @@ import statistics
 from typing import List
 from mako.template import Template
 
-from stats_n_graphs import posting_time_stats, id_from_link
-from poems import Poem
-from load_process_images import get_images, process_images
+from .stats_n_graphs import posting_time_stats, id_from_link
+from .poems import Poem
+from .load_process_images import get_images, process_images
 
 
 def make_snippet(tex):

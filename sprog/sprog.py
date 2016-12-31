@@ -3,25 +3,26 @@ import datetime
 import os.path
 from mako.template import Template
 
-from drive_upload import upload_sprog_to_drive
-from namecheap_ftp_upload import upload_sprog_to_namecheap
-from s3_upload import upload_to_s3
-from poems import update_poems, get_poems
-from latex import create_pdf
-from json_store import load_poems_json, save_poems_json
-from stats_n_graphs import make_graphs
-from utility import suffix_strftime
+from .drive_upload import upload_sprog_to_drive
+from .namecheap_ftp_upload import upload_sprog_to_namecheap
+from .s3_upload import upload_to_s3
+from .poems import update_poems, get_poems
+from .latex import create_pdf
+from .json_store import load_poems_json, save_poems_json
+from .stats_n_graphs import make_graphs
+from .utility import suffix_strftime
 
 
 class Sprog(object):
     def __init__(self, user_name: str,
                  latex_template_filename: str, html_template_filename: str,
-                 tmpdir: str, latexfile: str):
+                 tmpdir: str, latexfile: str, passwords: dict):
         self.user_name = user_name
         self.reddit = praw.Reddit()
         self.user = self.reddit.redditor(user_name)
         self.tmpdir = tmpdir
         self.latexfile = latexfile
+        self.passwords = passwords
 
         self.latex_template = Template(filename=latex_template_filename)
         self.html_template = Template(filename=html_template_filename)
@@ -36,10 +37,10 @@ class Sprog(object):
         self.poems, self.pages, self.pages_small = create_pdf(self.tmpdir, self.latexfile, self.user_name,
                                                               self.latex_template, self.poems)
         self._make_html()
-        upload_to_s3()
+        upload_to_s3(self.tmpdir, self.passwords)
         upload_sprog_to_drive()
         self._save_poems()
-        upload_sprog_to_namecheap()
+        upload_sprog_to_namecheap(self.tmpdir, self.passwords)
 
     def _load_update_poems(self):
         self.poems = load_poems_json("poems.json")
