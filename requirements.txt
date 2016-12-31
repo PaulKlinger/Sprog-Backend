@@ -3,6 +3,5 @@ boto3
 pydrive
 matplotlib
 pandas
-pypandoc
-praw
+praw>=4.1.0
 mako
