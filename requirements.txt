@@ -3,5 +3,6 @@ boto3
 pydrive
 matplotlib
 pandas
+prawcore>=0.6.0
 praw>=4.1.0
 mako
