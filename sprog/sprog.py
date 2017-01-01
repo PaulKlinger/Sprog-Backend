@@ -19,6 +19,9 @@ class Sprog(object):
                  tmpdir: str, latexfile: str, passwords: dict):
         self.user_name = user_name
         self.reddit = praw.Reddit()
+        # getting a lot of ConnectionResetError(104, 'Connection reset by peer') errors right now
+        # so add these to the ones that praw retries automatically
+        self.reddit._core.RETRY_STATUSES.add(104)
         self.user = self.reddit.redditor(user_name)
         self.tmpdir = tmpdir
         self.latexfile = latexfile
