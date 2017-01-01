@@ -10,8 +10,11 @@ def download_file(url: str, filename: str) -> None:
         with open(filename, 'wb') as f:
             response = requests.get(url, stream=True)
             response.raise_for_status()
-            if "Content-Type" in response.headers and "gif" in response.headers["Content-Type"]:
-                raise ValueError("Image {} is a gif".format(url))
+            if "Content-Type" in response.headers:
+                if "gif" in response.headers["Content-Type"]:
+                    raise ValueError("Image {} is a gif".format(url))
+                if "text" in response.headers["Content-Type"]:
+                    raise ValueError("Got text instead of image from {}".format(url))
             if "removed.png" in response.url:
                 raise FileNotFoundError("Image {} deleted".format(url))
             size = 0
@@ -22,7 +25,7 @@ def download_file(url: str, filename: str) -> None:
                 if not block:
                     break
                 f.write(block)
-            if size < 100:
+            if size < 500:
                 raise ValueError("File {} too small".format(url))
     except Exception as e:
         os.remove(filename)
