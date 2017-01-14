@@ -15,7 +15,7 @@ def make_snippet(tex):
     """"strips out newlines and links (used for top gilded list in statistics)"""
     tex = re.sub(r"\\begin\{[^}]*\}", "", tex)
     tex = re.sub(r"\\end\{[^}]*\}", "", tex)
-    tex = tex.replace(r"\\", " ").replace("\r\n", " ")
+    tex = tex.replace(r"\\", " ").replace("\r\n", " ").replace("\n", " ")
     tex = re.sub(r"\\href\{.*?\}\{(.*?)\}", r"\1", tex, re.MULTILINE)
     snip = " ".join(tex.split(" ")[:6])
     # close all braces (if snipped in the middle of e.g. \emph{...})
