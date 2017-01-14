@@ -13,8 +13,8 @@ from .load_process_images import get_images, process_images
 
 def make_snippet(tex):
     """"strips out newlines and links (used for top gilded list in statistics)"""
-    tex = tex.replace("\\begin{verse}", "")
-    tex = tex.replace("\\end{verse}", "")  # veeery short poems??
+    tex = re.sub(r"\\begin\{[^}]*\}", "", tex)
+    tex = re.sub(r"\\end\{[^}]*\}", "", tex)
     tex = tex.replace(r"\\", " ").replace("\r\n", " ")
     tex = re.sub(r"\\href\{.*?\}\{(.*?)\}", r"\1", tex, re.MULTILINE)
     snip = " ".join(tex.split(" ")[:6])
