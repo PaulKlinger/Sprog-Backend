@@ -11,6 +11,7 @@ from .latex import create_pdf
 from .json_store import load_poems_json, save_poems_json
 from .stats_n_graphs import make_graphs
 from .utility import suffix_strftime
+from .send_fcm import send_fcm
 
 
 class Sprog(object):
@@ -47,6 +48,8 @@ class Sprog(object):
         self._save_poems()
         print("Uploading to Namecheap")
         upload_sprog_to_namecheap(self.tmpdir, self.passwords)
+        print("Send FCM message")
+        send_fcm(self.poems)
 
     def _load_update_poems(self):
         self.poems = load_poems_json("poems.json")

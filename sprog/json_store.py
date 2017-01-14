@@ -4,9 +4,10 @@ import datetime
 from typing import List
 
 from .poems import Poem
+from .utility import datetime_to_timestamp
 
 
-def save_poems_json(poems, filename):
+def save_poems_json(poems: List[Poem], filename: str):
     struct = []
     for p in poems:
         for parent in p.parents:
@@ -14,7 +15,7 @@ def save_poems_json(poems, filename):
                 del(parent["body"])  # remove converted parent comment body to save space
 
         struct.append({
-            "timestamp": (p.datetime - datetime.datetime(1970, 1, 1)).total_seconds(),
+            "timestamp": datetime_to_timestamp(p.datetime),
             "link": p.link,
             "submission_user": p.submission_user,
             "submission_url": p.submission_url,

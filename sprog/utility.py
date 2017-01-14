@@ -1,4 +1,4 @@
-
+import datetime
 
 def suffix(d):
     return 'th' if 11<=d<=13 else {1:'st',2:'nd',3:'rd'}.get(d%10, 'th')
@@ -12,3 +12,7 @@ def suffix_strftime(fst, t):
 def permalink_to_full_link(link: str) -> str:
     """Turns permalinks returned by Praw 4.0+ into full links"""
     return "https://www.reddit.com" + link
+
+
+def datetime_to_timestamp(dt):
+    return (dt - datetime.datetime(1970, 1, 1)).total_seconds()
