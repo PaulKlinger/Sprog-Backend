@@ -11,7 +11,8 @@ def send_fcm(poems: List[Poem]):
     last_poems = [datetime_to_timestamp(p.datetime) for p in poems[:15]]
     jsondata = json.dumps(
         {"to": "/topics/PoemUpdates",
-         "data": {"last_poems": last_poems}
+         "data": {"last_poems": last_poems},
+         "collapse_key": "poem_update",
          })
     response = requests.post(url="https://fcm.googleapis.com/fcm/send",
                              data=jsondata,
