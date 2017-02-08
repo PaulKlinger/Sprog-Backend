@@ -219,6 +219,9 @@
         <div id="updated">
             last updated ${now.strftime("%Y-%m-%d %H:%M:%S")} (UTC)<br/>
             next scheduled update ${next_update.strftime("%Y-%m-%d %H:%M:%S")} (UTC).<br/>
+            Code available on <a href="https://github.com/PaulKlinger">GitHub</a>
+            for <a href="https://github.com/PaulKlinger/Sprog-Backend">backend</a>
+            and <a href="https://github.com/PaulKlinger/Sprog-App">app</a>.<br/>
             Google Play and the Google Play logo are trademarks of Google Inc.
         </div>
     </div>
