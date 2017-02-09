@@ -132,6 +132,10 @@
         font-weight: normal;
     }
 
+    #updated a {
+        color: #999;
+    }
+
     @media screen and (max-width: 500px) {
         #body {background-attachment: scroll;}
         #container {
