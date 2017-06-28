@@ -33,7 +33,7 @@ def download_file(url: str, filename: str) -> None:
 
 
 def get_image_url_from_link(url):
-    if "imgur" in url and not url[-3:] in ("jpg", "png", "gif", "ifv", "webm"):
+    if "imgur" in url and not url[-3:] in ("jpg", "png", "gif", "ifv", "ebm"):
         return url + ".jpg"
     elif url[-3:] in ("jpg", "png"):
         return url
