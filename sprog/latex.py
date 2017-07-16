@@ -6,7 +6,7 @@ import statistics
 from typing import List
 from mako.template import Template
 
-from .stats_n_graphs import posting_time_stats, id_from_link
+from .stats_n_graphs import posting_time_stats, id_from_link, total_words
 from .poems import Poem
 from .load_process_images import get_images, process_images
 
@@ -42,7 +42,7 @@ def compile_latex(tmpdir, latexfile):
 
 def make_compile_latex(tmpdir: str, latexfile: str, user_name: str, template: Template, poems: List[Poem]):
     latex = template.render_unicode(poems=poems, small=False,
-                                    make_snippet=make_snippet, id_from_link=id_from_link,
+                                    make_snippet=make_snippet, id_from_link=id_from_link, total_words=total_words,
                                     posting_time_stats=posting_time_stats, statistics=statistics,
                                     user_name=user_name.replace("_", "\\_"))
 
@@ -50,7 +50,7 @@ def make_compile_latex(tmpdir: str, latexfile: str, user_name: str, template: Te
         f.write(latex.encode("utf-8"))
 
     latex = template.render_unicode(poems=poems, small=True,
-                                    make_snippet=make_snippet, id_from_link=id_from_link,
+                                    make_snippet=make_snippet, id_from_link=id_from_link, total_words=total_words,
                                     posting_time_stats=posting_time_stats, statistics=statistics,
                                     user_name=user_name.replace("_", "\\_"))
 

@@ -1,5 +1,6 @@
 import datetime as dt
 import statistics
+import re
 # need to set matplotlib backend before importing pyplot,
 #  else an error occurs if running without gui
 import matplotlib
@@ -10,7 +11,7 @@ import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
 
-def id_from_link(link):
+def id_from_link(link) -> str:
     """create a unique (hopefully) from permalink (for latex labels)"""
     allowedchars = "abcdefghijklmnopqrstuvwxyz"
     allowedchars += allowedchars.upper()
@@ -18,7 +19,7 @@ def id_from_link(link):
     return "".join(c for c in link if c in allowedchars)[-10:]
 
 
-def prettyp_seconds(seconds):
+def prettyp_seconds(seconds) -> str:
     out = []
     if seconds > 60 * 60:
         out.append("{:.0f}h".format(seconds // (60 * 60)))
@@ -31,7 +32,7 @@ def prettyp_seconds(seconds):
     return " ".join(out)
 
 
-def posting_time_stats(poems):
+def posting_time_stats(poems) -> (str, str, str):
     diffs = [((p.datetime - dt.datetime.utcfromtimestamp(p.parents[-1]["timestamp"])).total_seconds(),
               id_from_link(p.link))
              for p in poems
@@ -41,7 +42,11 @@ def posting_time_stats(poems):
     return prettyp_seconds(med_seconds), prettyp_seconds(min_seconds), min_link
 
 
-def make_graphs(poems):
+def total_words(poems) -> int:
+    return sum(len(re.findall(r"\w+", p.content)) for p in poems)
+
+
+def make_graphs(poems) -> None:
     data = pandas.DataFrame(((p.datetime, p.gold, p.score,
                           (p.datetime - dt.datetime.utcfromtimestamp(p.parents[-1]["timestamp"])).total_seconds()
                           if p.parents and "timestamp" in p.parents[-1] else None,

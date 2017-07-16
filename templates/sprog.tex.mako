@@ -157,8 +157,8 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 \section*{\titlefont{${len(poems)} Poems}}
 \begin{itemize}
 \renewcommand{\labelitemi}{\dots}
-\item containing an average of ${"{:.2f}".format(sum(len(poem.content.split(" ")) for poem in poems)/len(poems))} words.
-\item totalling ${"{:,}".format(sum(len(poem.content.split(" ")) for poem in poems))} words.
+\item containing an average of ${"{:.2f}".format(total_words(poems)/len(poems))} words.
+\item totalling ${"{:,}".format(total_words(poems))} words.
 <% median, min, min_link = posting_time_stats(poems) %>
 \item posted a median of ${median} after the parent comment.
 \item the fastest of which was posted \hyperref[${min_link}]{${min}} after the parent comment.
