@@ -30,7 +30,7 @@ class Poem(object):
     @classmethod
     def from_comment(cls, comment, is_submission=False):
         timestamp = datetime.datetime.utcfromtimestamp(comment.created_utc)
-        link = permalink_to_full_link(comment.permalink())
+        link = permalink_to_full_link(comment.permalink)
 
         parents = []
         submission_url = None
@@ -40,7 +40,7 @@ class Poem(object):
             for p in parent_comments:
                 parents.append({"author": username_escape(p.author),
                                 "orig_body": p.body,
-                                "link": permalink_to_full_link(p.permalink()),
+                                "link": permalink_to_full_link(p.permalink),
                                 "timestamp": p.created_utc,
                                 "gold": p.gilded, "score": p.score})
 
@@ -84,7 +84,8 @@ def get_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem] = None) -> 
     now = datetime.datetime.utcnow()
     for c in get_comments(reddit, user_name):
         print(".", end="", flush=True)
-        if "www.reddit.com" + c.permalink() not in known_links:
+        print("Permalink: ", c.permalink)
+        if "www.reddit.com" + c.permalink not in known_links:
             try:
                 newpoems.append(Poem.from_comment(c))
             except Exception as e:
