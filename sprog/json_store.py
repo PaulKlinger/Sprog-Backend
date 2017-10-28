@@ -16,13 +16,13 @@ def save_poems_json(poems: List[Poem], filename: str):
 
         struct.append({
             "timestamp": datetime_to_timestamp(p.datetime),
-            "link": p.link,
+            "link": downgrade_link(p.link),
             "submission_user": p.submission_user,
             "submission_url": p.submission_url,
             "submission_title": p.submission_title,
             "noimg": p.noimg,
             "imgfilename": p.imgfilename,
-            "parents": p.parents,
+            "parents": downgrade_parents(p.parents),
             "orig_content": p.orig_content,
             "orig_submission_content": p.orig_submission_content,
             "gold": p.gold,
@@ -33,11 +33,30 @@ def save_poems_json(poems: List[Poem], filename: str):
         f.write(json.dumps(struct, sort_keys=True, indent=4))
 
 
+def downgrade_link(link: str) -> str:
+    """
+    Internally this program uses links with trailing slashes, as returned by new versions of praw.
+    To ensure compatibility with the Android app we remove these in the json file.
+    """
+    if link and link[-1] == "/":
+        link = link[:-1]
+    return link
+
+
+def downgrade_parents(parents: List[dict]) -> List[dict]:
+    """
+    Applies downgrade_link for all parent comments
+    """
+    for p in parents:
+        p["link"] = downgrade_link(p["link"])
+    return parents
+
+
 def upgrade_link(link: str) -> str:
     """
-    The permalink returned by praw used to have no trailing slash,
-    here we add one if it wasn't there already.
-    This should only be relevant the first time this runs (hopefully...).
+    The permalink returned by praw used to have no trailing slash.
+    We use this old version in the json file add one here to make
+    sure it's consistent with new poems.
     """
     if link and link[-1] != "/":
         link += "/"
