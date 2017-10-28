@@ -20,7 +20,7 @@ class CommentMissingException(Exception):
 
 
 def get_comment_from_link(reddit: praw.Reddit, link: str) -> praw.models.reddit.comment.Comment:
-    comment_id = link.split("/")[-1]
+    comment_id = link.split("/")[-2]
     c = reddit.comment(comment_id)
     if not isinstance(c, praw.models.reddit.comment.Comment) or c.permalink not in link \
             or c.body in ("[deleted]", "[removed]") or c.body is None:
