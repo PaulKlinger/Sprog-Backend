@@ -84,8 +84,7 @@ def get_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem] = None) -> 
     now = datetime.datetime.utcnow()
     for c in get_comments(reddit, user_name):
         print(".", end="", flush=True)
-        print("Permalink: ", c.permalink)
-        if "www.reddit.com" + c.permalink not in known_links:
+        if permalink_to_full_link(c.permalink) not in known_links:
             try:
                 newpoems.append(Poem.from_comment(c))
             except Exception as e:

@@ -33,6 +33,26 @@ def save_poems_json(poems: List[Poem], filename: str):
         f.write(json.dumps(struct, sort_keys=True, indent=4))
 
 
+def upgrade_link(link: str) -> str:
+    """
+    The permalink returned by praw used to have no trailing slash,
+    here we add one if it wasn't there already.
+    This should only be relevant the first time this runs (hopefully...).
+    """
+    if link and link[-1] != "/":
+        link += "/"
+    return link
+
+
+def upgrade_parents(parents: List[dict]) -> List[dict]:
+    """
+    Does the link upgrade of upgrade_link for all parent comments
+    """
+    for p in parents:
+        p["link"] = upgrade_link(p["link"])
+    return parents
+
+
 def load_poems_json(filename: str) -> List[Poem]:
     poems = []
     try:
@@ -42,11 +62,11 @@ def load_poems_json(filename: str) -> List[Poem]:
                 for p in struct:
                     poems.append(Poem(
                         timestamp=datetime.datetime.utcfromtimestamp(p["timestamp"]),
-                        link=p["link"],
+                        link=upgrade_link(p["link"]),
                         submission_user=p["submission_user"],
                         submission_url=p["submission_url"],
                         submission_title=p["submission_title"],
-                        parents=p["parents"],
+                        parents=upgrade_parents(p["parents"]),
                         noimg=p["noimg"],
                         imgfilename=p["imgfilename"],
                         orig_content=p.get("orig_content", None),
