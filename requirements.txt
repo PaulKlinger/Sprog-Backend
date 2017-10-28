@@ -4,5 +4,5 @@ pydrive
 matplotlib
 pandas
 prawcore>=0.6.0
-praw>=4.3.0,<5.0.0
+praw>=5.2.0,<6.0.0
 mako
