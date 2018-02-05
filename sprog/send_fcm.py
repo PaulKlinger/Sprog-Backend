@@ -30,13 +30,14 @@ def send_last_poems_fcm(poems: List[Poem]):
              collapse_key="poem_update")
 
 
-def _force_update():
+def _force_update(debug: bool = True):
     """
     Send a FCM message showing >10 available poems, i.e. force a poem update for all users.
 
     CAREFUL!!
     """
     now_timestamp = datetime_to_timestamp(datetime.now())
-    send_fcm(topic="/topics/PoemUpdates",
+    topic = "/topics/testPoemUpdates" if debug else "/topics/PoemUpdates"
+    send_fcm(topic=topic,
              data={"last_poems": [now_timestamp] * 12},
              collapse_key="poem_update")
