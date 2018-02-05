@@ -33,7 +33,11 @@ def save_poems_json(poems: List[Poem], filename: str, time_limit: Union[datetime
         if time_limit is None or p.datetime > time_limit:
             struct.append(poem_data)
 
-    shutil.copy(filename, "prev_" + filename)
+    try:
+        shutil.copy(filename, "prev_" + filename)
+    except FileNotFoundError:
+        pass
+
     json_str = json.dumps(struct, sort_keys=True, indent=4).encode("utf-8")
     with open(filename, "wb") as f:
         f.write(json_str)
