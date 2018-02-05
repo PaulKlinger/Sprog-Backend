@@ -60,8 +60,12 @@ class Sprog(object):
         self.poems = get_poems(self.reddit, self.user_name, self.poems)
 
     def _save_poems(self):
-        save_poems_json(self.poems, "poems.json")
-        save_poems_json(self.deleted_poems, "deleted_poems.json")
+        save_poems_json(self.poems, "poems.json", None)
+        save_poems_json(self.deleted_poems, "deleted_poems.json", None)
+
+        # Last 60 days poems for App updates
+        save_poems_json(self.poems, "poems_60days.json",
+                        datetime.datetime.now() - datetime.timedelta(days=60))
 
     def _poems_to_latex(self):
         print("Converting Markdown to LaTeX")

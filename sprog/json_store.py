@@ -1,20 +1,22 @@
 import shutil
 import json
 import datetime
-from typing import List
+import gzip
+from typing import List, Union
 
 from .poems import Poem
 from .utility import datetime_to_timestamp
 
 
-def save_poems_json(poems: List[Poem], filename: str):
+def save_poems_json(poems: List[Poem], filename: str, time_limit: Union[datetime.datetime, None]):
     struct = []
+
     for p in poems:
         for parent in p.parents:
             if "body" in parent:
                 del(parent["body"])  # remove converted parent comment body to save space
 
-        struct.append({
+        poem_data = {
             "timestamp": datetime_to_timestamp(p.datetime),
             "link": downgrade_link(p.link),
             "submission_user": p.submission_user,
@@ -27,10 +29,17 @@ def save_poems_json(poems: List[Poem], filename: str):
             "orig_submission_content": p.orig_submission_content,
             "gold": p.gold,
             "score": p.score,
-        })
+        }
+        if time_limit is None or p.datetime > time_limit:
+            struct.append(poem_data)
+
     shutil.copy(filename, "prev_" + filename)
-    with open(filename, "w") as f:
-        f.write(json.dumps(struct, sort_keys=True, indent=4))
+    json_str = json.dumps(struct, sort_keys=True, indent=4).encode("utf-8")
+    with open(filename, "wb") as f:
+        f.write(json_str)
+
+    with gzip.open(filename + ".gz", "wb") as f:
+        f.write(json_str)
 
 
 def downgrade_link(link: str) -> str:
