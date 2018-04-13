@@ -82,7 +82,7 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 \vfill
 
 {\small For bug reports or suggestions contact /u/Almoturg.\par}
-{\small The newest version of this file is available \href{https://almoturg.com/sprog}{here}.\par}
+{\small The newest version of this file is available at \href{https://almoturg.com/sprog/}{almoturg.com/sprog}.\par}
 \end{titlepage}
 <%poem_links=[p.link for p in poems if p.link]%>
 <%child_poems=[c["link"] for p in poems for c in p.parents if c["link"] in poem_links]%>
