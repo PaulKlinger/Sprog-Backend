@@ -27,9 +27,11 @@
         <content:encoded><![CDATA[
             % if show_parents:
                 ${poem.submission_title}
+
                 % if poem.submission_content:
                     <blockquote>${converter(poem.submission_content)}</blockquote>
                 % endif
+
                 &mdash; ${"/u/" if poem.submission_user != "deleted" else ""}${converter(poem.submission_user)}
                 % for parent_comment in poem.parents:
                     <blockquote>${converter(parent_comment["orig_body"])}</blockquote>
