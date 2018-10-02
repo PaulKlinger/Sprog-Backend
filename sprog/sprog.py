@@ -12,11 +12,12 @@ from .json_store import load_poems_json, save_poems_json
 from .stats_n_graphs import make_graphs
 from .utility import suffix_strftime
 from .send_fcm import send_last_poems_fcm
+from .rss_feed import create_rss_feeds
 
 
 class Sprog(object):
     def __init__(self, user_name: str,
-                 latex_template_filename: str, html_template_filename: str,
+                 latex_template_filename: str, html_template_filename: str, rss_template_filename: str,
                  tmpdir: str, latexfile: str, passwords: dict):
         self.user_name = user_name
         self.reddit = praw.Reddit()
@@ -27,6 +28,7 @@ class Sprog(object):
 
         self.latex_template = Template(filename=latex_template_filename)
         self.html_template = Template(filename=html_template_filename)
+        self.rss_template = Template(filename=rss_template_filename)
 
         self.poems = None
         self.pages = self.pages_small = None
@@ -46,6 +48,8 @@ class Sprog(object):
         upload_sprog_to_drive()
         print("Saving Poems")
         self._save_poems()
+        print("creating rss feeds")
+        create_rss_feeds(self.poems[:50])
         print("Uploading to Namecheap")
         upload_sprog_to_namecheap(self.tmpdir, self.passwords)
         print("Send FCM message")

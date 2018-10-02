@@ -18,3 +18,7 @@ def upload_sprog_to_namecheap(tmpdir, passwords):
             sftp.put("poems.json.gz", "poems.json.gz")
             print("uploading sprog_60days.json.gz")
             sftp.put("poems_60days.json.gz", "poems_60days.json.gz")
+            print("uploading sprog.rss")
+            sftp.put("sprog.rss", "sprog.rss")
+            print("uploading sprog_no_context.rss")
+            sftp.put("sprog_no_context.rss", "sprog_no_context.rss")
