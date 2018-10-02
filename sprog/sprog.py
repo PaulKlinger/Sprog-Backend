@@ -49,7 +49,7 @@ class Sprog(object):
         print("Saving Poems")
         self._save_poems()
         print("creating rss feeds")
-        create_rss_feeds(self.poems[:50])
+        create_rss_feeds(self.poems[:50], self.rss_template)
         print("Uploading to Namecheap")
         upload_sprog_to_namecheap(self.tmpdir, self.passwords)
         print("Send FCM message")
