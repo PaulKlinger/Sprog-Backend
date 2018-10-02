@@ -18,9 +18,9 @@
 	<sy:updateFrequency>6</sy:updateFrequency>
     % for poem in poems:
         <item>
-		<title>${converter(title_snippet(poem.orig_content))}</title>
+		<title>${title_snippet(poem.orig_content)}</title>
 		<link>${poem.link}</link>
-		<pubDate>${poem.datetime.isoformat()}</pubDate>
+		<pubDate>${format_timestamp(poem.datetime)}</pubDate>
 		<dc:creator><![CDATA[/u/Poem_for_your_sprog]]></dc:creator>
 
 		<guid isPermaLink="true">${poem.link}</guid>
