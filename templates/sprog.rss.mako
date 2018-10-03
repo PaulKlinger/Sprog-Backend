@@ -29,18 +29,18 @@
                 ${poem.submission_title}
 
                 % if poem.submission_content:
-                    <blockquote>${converter(poem.submission_content)}</blockquote>
+                    <blockquote>${to_html(poem.submission_content)}</blockquote>
                 % endif
 
-                ${converter("– /u/"+poem.submission_user) if poem.submission_user != "deleted" else "(deleted)"}
+                ${format_username(poem.submission_user)}
                 % for parent_comment in poem.parents:
-                    <blockquote>${converter(parent_comment["orig_body"])}</blockquote>
-					
-                    ${converter("– /u/"+ parent_comment["author"]) if parent_comment["author"] != "deleted" else "(deleted)"}
+                    <blockquote>${to_html(parent_comment["orig_body"])}</blockquote>
+
+                    ${format_username(parent_comment["author"])}
                 % endfor
             % endif
             <blockquote>
-                ${converter(poem.orig_content)}
+                ${to_html(poem.orig_content)}
             </blockquote>
             &mdash; /u/Poem_for_your_sprog
             ]]></content:encoded>
