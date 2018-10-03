@@ -55,13 +55,14 @@ class Sprog(object):
         print("Send FCM message")
         send_last_poems_fcm(self.poems)
 
-    def _load_update_poems(self):
+    def _load_update_poems(self, noupdate=False):
         self.poems = load_poems_json("poems.json")
         self.deleted_poems = load_poems_json("deleted_poems.json")
-        print("updating recent poems")
-        self.poems, self.deleted_poems = update_poems(self.reddit, self.user_name, self.poems, self.deleted_poems)
-        print("getting new poems")
-        self.poems = get_poems(self.reddit, self.user_name, self.poems)
+        if not noupdate:
+            print("updating recent poems")
+            self.poems, self.deleted_poems = update_poems(self.reddit, self.user_name, self.poems, self.deleted_poems)
+            print("getting new poems")
+            self.poems = get_poems(self.reddit, self.user_name, self.poems)
 
     def _save_poems(self):
         save_poems_json(self.poems, "poems.json", None)

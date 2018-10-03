@@ -62,6 +62,23 @@
         text-align: center;
         font-size: 15pt;
     }
+    #rss {
+        max-width: 450px;
+        margin-left:auto;
+        margin-right: auto;
+        padding-top: 50px;
+        font-size: 15pt;
+        text-align: center;
+    }
+    .rss_feed {
+        display:flex;
+        justify-content:center;
+        align-items:center;
+    }
+    .rss_icon {
+        width: 30px;
+        height: 30px;
+    }
     #playstore {
         width: 12em;
     }
@@ -187,8 +204,13 @@
             <span id="author">by /u/Almoturg</span>
             </h1>
         </div>
+        <div id="rss">
+            RSS feeds now available! <br />
+            <a class="rss_feed" href="sprog.rss"><img class="rss_icon" src="rss_icon.png"/>RSS feed of poems with context</a>
+            <a class="rss_feed" href="sprog_no_context.rss"><img class="rss_icon" src="rss_icon.png"/>RSS feed of just the poems</a>
+        </div>
         <div id="app">
-            Android app now available!<br>
+            Get the free Android app:<br />
             <a href='http://play.google.com/store/apps/details?id=com.almoturg.sprog&utm_source=website&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
                 <img id="playstore" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/>
             </a>
