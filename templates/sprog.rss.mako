@@ -9,7 +9,7 @@
 
 <channel>
 	<title>Poem for your Sprog</title>
-	<atom:link href="https://almoturg.com/sprog.rss" rel="self" type="application/rss+xml" />
+	<atom:link href="https://almoturg.com/sprog${"_no_context" if not show_parents else ""}.rss" rel="self" type="application/rss+xml" />
 	<link>https://almoturg.com/sprog/</link>
 	<description>Reddit poems by /u/Poem_for_your_sprog</description>
 	<lastBuildDate>${build_date}</lastBuildDate>
