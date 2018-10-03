@@ -32,11 +32,11 @@
                     <blockquote>${converter(poem.submission_content)}</blockquote>
                 % endif
 
-                ${converter("- /u/"+poem.submission_user) if poem.submission_user != "deleted" else "(deleted)"}
+                ${converter("– /u/"+poem.submission_user) if poem.submission_user != "deleted" else "(deleted)"}
                 % for parent_comment in poem.parents:
                     <blockquote>${converter(parent_comment["orig_body"])}</blockquote>
 					
-                    ${converter("- /u/"+ parent_comment["author"]) if parent_comment["author"] != "deleted" else "(deleted)"}
+                    ${converter("– /u/"+ parent_comment["author"]) if parent_comment["author"] != "deleted" else "(deleted)"}
                 % endfor
             % endif
             <blockquote>
