@@ -206,8 +206,8 @@
         </div>
         <div id="rss">
             RSS feeds now available! <br />
-            <a class="rss_feed" href="sprog.rss"><img class="rss_icon" src="rss_icon.png"/>RSS feed of poems with context</a>
-            <a class="rss_feed" href="sprog_no_context.rss"><img class="rss_icon" src="rss_icon.png"/>RSS feed of just the poems</a>
+            <a class="rss_feed" href="sprog.rss"><img class="rss_icon" src="/rss_icon.png"/>RSS feed of poems with context</a>
+            <a class="rss_feed" href="sprog_no_context.rss"><img class="rss_icon" src="/rss_icon.png"/>RSS feed of just the poems</a>
         </div>
         <div id="app">
             Get the free Android app:<br />
