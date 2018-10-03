@@ -28,7 +28,7 @@ class Sprog(object):
 
         self.latex_template = Template(filename=latex_template_filename)
         self.html_template = Template(filename=html_template_filename)
-        self.rss_template = Template(filename=rss_template_filename)
+        self.rss_template = Template(filename=rss_template_filename, input_encoding="utf-8")
 
         self.poems = None
         self.pages = self.pages_small = None
