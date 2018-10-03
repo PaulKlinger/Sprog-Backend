@@ -19,7 +19,7 @@
     % for poem in poems:
         <item>
 		<title>${title_snippet(poem.orig_content)}</title>
-		<link>${poem.link}</link>
+		<link>${poem.link+"?context=10"}</link>
 		<pubDate>${format_timestamp(poem.datetime)}</pubDate>
 		<dc:creator><![CDATA[/u/Poem_for_your_sprog]]></dc:creator>
 
