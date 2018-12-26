@@ -144,7 +144,9 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
     %>
     \begin{tcolorbox}[enhanced, label=${id_from_link(poem.link)}, colback=poemtitle!5, colframe=poemtitle, ${breakable}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
-                      ${r"\scalerel*{\includegraphics{../img/gold.png}}{B}$\,\times\,"+str(poem.gold)+"$" if poem.gold else ""}}]
+                      ${r"\scalerel*{\includegraphics{../img/v2-silver.png}}{B}$\,\times\,"+str(poem.silver)+"$\ \ " if poem.silver else ""}\
+                      ${r"\scalerel*{\includegraphics{../img/v2-gold.png}}{B}$\,\times\,"+str(poem.gold)+"$\ \ " if poem.gold else ""}\
+                      ${r"\scalerel*{\includegraphics{../img/v2-platinum.png}}{B}$\,\times\,"+str(poem.platinum)+"$\ \ " if poem.platinum else ""}}]
             ${"" if small else "\\vspace{1.5em}"}
             ${"\\begin{center}\\begin{varwidth}[t]{\\textwidth}" if not breakable else ""}
                 ${poem.content}
