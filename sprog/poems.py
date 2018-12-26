@@ -10,7 +10,8 @@ from .utility import permalink_to_full_link
 class Poem(object):
     def __init__(self, timestamp, link,
                  submission_user, submission_url, submission_title,
-                 parents, noimg, imgfilename, orig_content, orig_submission_content, gold, score):
+                 parents, noimg, imgfilename, orig_content, orig_submission_content,
+                 gold, silver, platinum, score):
         self.datetime = timestamp
         self.link = link
         self.submission_user = submission_user
@@ -22,6 +23,8 @@ class Poem(object):
         self.orig_content = orig_content
         self.orig_submission_content = orig_submission_content
         self.gold = gold
+        self.silver = silver
+        self.platinum = platinum
         self.score = score
 
         self.content = None
@@ -42,7 +45,10 @@ class Poem(object):
                                 "orig_body": p.body,
                                 "link": permalink_to_full_link(p.permalink),
                                 "timestamp": p.created_utc,
-                                "gold": p.gilded, "score": p.score})
+                                "gold": p.gildings["gid_2"],
+                                "silver": p.gildings["gid_1"],
+                                "platinum": p.gildings["gid_3"],
+                                "score": p.score})
 
             submission_user = username_escape(submission.author)
 
@@ -61,7 +67,8 @@ class Poem(object):
         return cls(timestamp, link, submission_user, submission_url, submission_title,
                    parents, noimg, imgfilename, comment.body if not is_submission else comment.selftext,
                    submission.selftext if not is_submission else "",
-                   comment.gilded, comment.score)
+                   comment.gildings["gid_2"], comment.gildings["gid_1"], comment.gildings["gid_3"],
+                   comment.score)
 
     def to_latex(self):
         self.content = poem_md_to_latex(self.orig_content, self.datetime)
@@ -112,7 +119,9 @@ def update_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem], deleted
             break
         try:
             c = get_comment_from_link(reddit, p.link)
-            p.gold = c.gilded
+            p.gold = c.gildings["gid_2"]
+            p.silver = c.gildings["gid_1"]
+            p.platinum = c.gildings["gid_3"]
             p.score = c.score
             p.orig_content = c.body
             if False:  # Don't update comments for now, takes a long time and info is not used.

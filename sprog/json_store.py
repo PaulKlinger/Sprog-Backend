@@ -28,6 +28,8 @@ def save_poems_json(poems: List[Poem], filename: str, time_limit: Union[datetime
             "orig_content": p.orig_content,
             "orig_submission_content": p.orig_submission_content,
             "gold": p.gold,
+            "silver": p.silver,
+            "platinum": p.platinum,
             "score": p.score,
         }
         if time_limit is None or p.datetime > time_limit:
@@ -104,6 +106,8 @@ def load_poems_json(filename: str) -> List[Poem]:
                         orig_content=p.get("orig_content", None),
                         orig_submission_content=p.get("orig_submission_content", None),
                         gold=p.get("gold", None),
+                        silver=p.get("silver", 0),
+                        platinum=p.get("platinum", 0),
                         score=p.get("score", None)
                     ))
     except FileNotFoundError:
