@@ -33,7 +33,7 @@ class Sprog(object):
         self.poems = None
         self.pages = self.pages_small = None
 
-    def run(self):
+    def run(self, upload=True):
         self._load_update_poems()
         self._poems_to_latex()
         print("Creating graphs")
@@ -42,18 +42,19 @@ class Sprog(object):
         self.poems, self.pages, self.pages_small = create_pdf(self.tmpdir, self.latexfile, self.user_name,
                                                               self.latex_template, self.poems)
         self._make_html()
-        print("Uploading to Amazon S3")
-        upload_to_s3(self.tmpdir, self.passwords)
-        print("Uploading to Google Drive")
-        upload_sprog_to_drive()
-        print("Saving Poems")
-        self._save_poems()
         print("creating rss feeds")
         create_rss_feeds(self.poems[:50], self.rss_template)
-        print("Uploading to Namecheap")
-        upload_sprog_to_namecheap(self.tmpdir, self.passwords)
-        print("Send FCM message")
-        send_last_poems_fcm(self.poems)
+        print("Saving Poems")
+        self._save_poems()
+        if upload:
+            print("Uploading to Amazon S3")
+            upload_to_s3(self.tmpdir, self.passwords)
+            print("Uploading to Google Drive")
+            upload_sprog_to_drive()
+            print("Uploading to Namecheap")
+            upload_sprog_to_namecheap(self.tmpdir, self.passwords)
+            print("Sending FCM message")
+            send_last_poems_fcm(self.poems)
 
     def _load_update_poems(self, noupdate=False):
         self.poems = load_poems_json("poems.json")
