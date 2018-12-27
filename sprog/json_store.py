@@ -105,7 +105,7 @@ def load_poems_json(filename: str) -> List[Poem]:
                         imgfilename=p["imgfilename"],
                         orig_content=p.get("orig_content", None),
                         orig_submission_content=p.get("orig_submission_content", None),
-                        gold=p.get("gold", None),
+                        gold=p.get("gold", 0),
                         silver=p.get("silver", 0),
                         platinum=p.get("platinum", 0),
                         score=p.get("score", None)
