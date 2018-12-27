@@ -183,7 +183,7 @@ ${"{:,}".format(sum(poem.platinum or 0 for poem in poems))} \platinum\,.
 \item in ${sum([1 for p in poems if "timmy fucking die" in p.orig_content.lower()])} of which Timmy fucking dies.
 \end{itemize}
 
-\section*{\titlefont{Most awarded (1\platinum = 2\gold = 3\silver):}}
+\section*{\titlefont{Most awarded (1\,\platinum\,=\,2\,\gold\,=\,3\,\silver):}}
 \begin{enumerate}
 % for p in sorted(poems, key=lambda x: x.platinum + 2*x.gold + 3*x.silver, reverse=True)[:15]:
 \item \makebox[3cm]{${p.platinum} \platinum\,, ${p.gold} \gold\,, ${p.silver} \silver\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
