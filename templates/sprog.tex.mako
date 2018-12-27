@@ -71,6 +71,12 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 \setlength{\leftmargini}{1em}
 % endif
 
+%%
+\newcommand{\silver}[0]{\scalerel*{\includegraphics{../img/my-silver.png}}{B}}
+\newcommand{\gold}[0]{\scalerel*{\includegraphics{../img/my-gold.png}}{B}}
+\newcommand{\platinum}[0]{\scalerel*{\includegraphics{../img/my-platinum.png}}{B}}
+%%
+
 \begin{document}
 \begin{titlepage}\centering
 \par\vspace*{${"5cm" if small else "7cm"}}
@@ -122,7 +128,9 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
             <%c_poem = [p for p in poems if p.link==c["link"]][0]%>
             \begin{tcolorbox}[enhanced, label=${id_from_link(c_poem.link)}, colback=poemtitle!5, colframe=poemtitle, ${breakable}
                       title={/u/${user_name} \href{${c["link"]}}{\color{babyblue}{[Link]}} %
-                      ${r"\scalerel*{\includegraphics{../img/gold.png}}{B}$\,\times\,"+str(c_poem.gold)+"$" if c_poem.gold else ""}}]
+                      ${r"\silver$\,\times\,"+str(c_poem.silver)+"$\ \ " if poem.silver else ""}\
+                      ${r"\gold$\,\times\,"+str(c_poem.gold)+"$\ \ " if poem.gold else ""}\
+                      ${r"\platinum$\,\times\,"+str(c_poem.platinum)+"$\ \ " if poem.platinum else ""}}]
                 ${"" if small else "\\vspace{1.5em}"}
                 ${"\\begin{center}\\begin{varwidth}[t]{\\textwidth}" if not breakable else ""}
                     ${c_poem.content}
@@ -144,9 +152,9 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
     %>
     \begin{tcolorbox}[enhanced, label=${id_from_link(poem.link)}, colback=poemtitle!5, colframe=poemtitle, ${breakable}
                       title={/u/${user_name} \href{${poem.link}}{\color{babyblue}{[Link]}} %
-                      ${r"\scalerel*{\includegraphics{../img/v2-silver.png}}{B}$\,\times\,"+str(poem.silver)+"$\ \ " if poem.silver else ""}\
-                      ${r"\scalerel*{\includegraphics{../img/v2-gold.png}}{B}$\,\times\,"+str(poem.gold)+"$\ \ " if poem.gold else ""}\
-                      ${r"\scalerel*{\includegraphics{../img/v2-platinum.png}}{B}$\,\times\,"+str(poem.platinum)+"$\ \ " if poem.platinum else ""}}]
+                      ${r"\silver$\,\times\,"+str(poem.silver)+"$\ \ " if poem.silver else ""}\
+                      ${r"\gold$\,\times\,"+str(poem.gold)+"$\ \ " if poem.gold else ""}\
+                      ${r"\platinum$\,\times\,"+str(poem.platinum)+"$\ \ " if poem.platinum else ""}}]
             ${"" if small else "\\vspace{1.5em}"}
             ${"\\begin{center}\\begin{varwidth}[t]{\\textwidth}" if not breakable else ""}
                 ${poem.content}
@@ -165,17 +173,20 @@ BoldItalicFont = DroidSerif-BoldItalic_modified.ttf]
 \item posted a median of ${median} after the parent comment.
 \item the fastest of which was posted \hyperref[${min_link}]{${min}} after the parent comment.
 \item at an average depth of ${"{:.2f}".format(statistics.mean([float(len(p.parents)) for p in poems]))}.
-\item which received a total of ${"{:,}".format(sum(poem.gold or 0 for poem in poems))} months of Reddit gold.
+\item which received a total of \
+${"{:,}".format(sum(poem.silver or 0 for poem in poems))} \silver\,, \
+${"{:,}".format(sum(poem.gold or 0 for poem in poems))} \gold\,, \
+${"{:,}".format(sum(poem.platinum or 0 for poem in poems))} \platinum\,.
 \item with a median score of ${"{:,.0f}".format(statistics.median(p.score for p in poems if p.score is not None))} karma.
 \item with a combined score of ${"{:,}".format(sum(p.score or 0 for p in poems))} karma.
 \item of which ${sum([1 for p in poems if "timmy" in p.orig_content.lower()])} involve Timmy.
 \item in ${sum([1 for p in poems if "timmy fucking die" in p.orig_content.lower()])} of which Timmy fucking dies.
 \end{itemize}
 
-\section*{\titlefont{Most gilded:}}
+\section*{\titlefont{Most awarded (1\platinum = 2\gold = 3\silver):}}
 \begin{enumerate}
-% for p in sorted(poems, key=lambda x: x.gold or 0, reverse=True)[:15]:
-\item \scalerel*{\includegraphics{../img/gold.png}}{B}\makebox[1cm]{$\,\times\,${p.gold}$\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
+% for p in sorted(poems, key=lambda x: x.platinum + 2*x.gold + 3*x.silver, reverse=True)[:15]:
+\item \makebox[3cm]{${p.platinum} \platinum\,, ${p.gold} \gold\,, ${p.silver} \silver\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
 
