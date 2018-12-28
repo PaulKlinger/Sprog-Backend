@@ -185,7 +185,7 @@ ${"{:,}".format(sum(poem.platinum or 0 for poem in poems))} \platinum\,.
 
 \section*{\titlefont{Most awarded (1\,\platinum\,=\,2\,\gold\,=\,3\,\silver):}}
 \begin{enumerate}
-% for p in sorted(poems, key=lambda x: x.platinum + 2*x.gold + 3*x.silver, reverse=True)[:15]:
+% for p in sorted(poems, key=lambda x: 3*x.platinum + 2*x.gold + x.silver, reverse=True)[:15]:
 \item \makebox[3cm]{${p.platinum} \platinum\,, ${p.gold} \gold\,, ${p.silver} \silver\hfill} \hyperref[${id_from_link(p.link)}]{${make_snippet(p.content)}\ldots}
 % endfor
 \end{enumerate}
