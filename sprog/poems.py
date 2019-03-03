@@ -111,11 +111,13 @@ def get_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem] = None) -> 
     return poems
 
 
-def update_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem], deleted_poems: List[Poem]) -> (List[Poem], List[Poem]):
+def update_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem], deleted_poems: List[Poem],
+                 cutoff_age_days: int = 30) -> (List[Poem], List[Poem]):
     # TODO: add submission updating (for poems that are submissions)
     for p in poems:
         print(".", end="", flush=True)
-        if (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=30):
+        if (cutoff_age_days is not None
+                and (datetime.datetime.today() - p.datetime) > datetime.timedelta(days=cutoff_age_days)):
             break
         try:
             c = get_comment_from_link(reddit, p.link)
