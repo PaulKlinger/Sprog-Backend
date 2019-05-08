@@ -1,4 +1,6 @@
 import praw
+import praw.models
+from typing import Tuple
 
 
 def get_all_parents(obj):
@@ -32,3 +34,11 @@ def get_comments(reddit: praw.Reddit, user_name: str):
     user = reddit.redditor(user_name)
     comments = user.comments.new()
     yield from comments
+
+
+def get_comment_awards(comment: praw.models.Comment) -> Tuple[int, int, int]:
+    silver = comment.gildings.get("gid_1", 0)
+    gold = comment.gildings.get("gid_2", 0)
+    platinum = comment.gildings.get("gid_3", 0)
+
+    return silver, gold, platinum

@@ -3,7 +3,7 @@ from typing import List
 import praw
 
 from .md_to_latex import poem_md_to_latex, md_to_latex, title_escape, username_escape
-from .reddit_helpers import get_all_parents, get_comment_from_link, get_comments, CommentMissingException
+from .reddit_helpers import get_all_parents, get_comment_from_link, get_comments, CommentMissingException, get_comment_awards
 from .utility import permalink_to_full_link
 
 
@@ -41,13 +41,14 @@ class Poem(object):
         if not is_submission:
             submission, parent_comments = get_all_parents(comment)
             for p in parent_comments:
+                silver, gold, platinum = get_comment_awards(p)
                 parents.append({"author": username_escape(p.author),
                                 "orig_body": p.body,
                                 "link": permalink_to_full_link(p.permalink),
                                 "timestamp": p.created_utc,
-                                "gold": p.gildings["gid_2"],
-                                "silver": p.gildings["gid_1"],
-                                "platinum": p.gildings["gid_3"],
+                                "gold": gold,
+                                "silver": silver,
+                                "platinum": platinum,
                                 "score": p.score})
 
             submission_user = username_escape(submission.author)
@@ -64,10 +65,11 @@ class Poem(object):
 
         noimg = False
         imgfilename = None
+        silver, gold, platinum = get_comment_awards(comment)
         return cls(timestamp, link, submission_user, submission_url, submission_title,
                    parents, noimg, imgfilename, comment.body if not is_submission else comment.selftext,
                    submission.selftext if not is_submission else "",
-                   comment.gildings["gid_2"], comment.gildings["gid_1"], comment.gildings["gid_3"],
+                   gold, silver, platinum,
                    comment.score)
 
     def to_latex(self):
@@ -121,17 +123,9 @@ def update_poems(reddit: praw.Reddit, user_name: str, poems: List[Poem], deleted
             break
         try:
             c = get_comment_from_link(reddit, p.link)
-            p.gold = c.gildings["gid_2"]
-            p.silver = c.gildings["gid_1"]
-            p.platinum = c.gildings["gid_3"]
+            p.silver, p.gold, p.platinum = get_comment_awards(c)
             p.score = c.score
             p.orig_content = c.body
-            if False:  # Don't update comments for now, takes a long time and info is not used.
-                for parent in p.parents:
-                    if "link" in parent and parent["link"]:
-                        parent_comment = get_comment_from_link(reddit, parent["link"])
-                        parent["score"] = parent_comment.score
-                        parent["gold"] = parent_comment.gilded
 
         except Exception as e:
             print("-------")

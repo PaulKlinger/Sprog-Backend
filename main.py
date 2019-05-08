@@ -14,4 +14,4 @@ if __name__ == "__main__":
                   latex_template_filename=latex_template_filename, html_template_filename=html_template_filename,
                   rss_template_filename=rss_template_filename,
                   tmpdir=tmpdir, latexfile=latexfile, passwords=passwords)
-    sprog.run()
+    sprog.run(upload=False)
