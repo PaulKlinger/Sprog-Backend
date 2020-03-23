@@ -153,6 +153,7 @@ def process_superscript(source: str) -> str:
         elif c == ")" and superscript and superpar:
             out += "}" * superscript
             superscript = 0
+            superpar = False
         elif c in (" ", "\n") and not superpar:
             if out[-17:] == r"\textsuperscript{":
                 out = out[:-17] + r"\textasciicircum{}"
