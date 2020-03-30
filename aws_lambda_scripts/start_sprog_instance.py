@@ -7,6 +7,5 @@ def lambda_handler(event, context):
         InstanceIds=[
             'i-00c8bff4207d0e201',
         ],
-        AdditionalInfo='string',
         DryRun=False
     )
