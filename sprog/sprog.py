@@ -3,7 +3,6 @@ import datetime
 import os.path
 from mako.template import Template
 
-from .drive_upload import upload_sprog_to_drive
 from .namecheap_ftp_upload import upload_sprog_to_namecheap
 from .s3_upload import upload_to_s3
 from .poems import update_poems, get_poems
@@ -49,8 +48,6 @@ class Sprog(object):
         if upload:
             print("Uploading to Amazon S3")
             upload_to_s3(self.tmpdir, self.passwords)
-            print("Uploading to Google Drive")
-            upload_sprog_to_drive()
             print("Uploading to Namecheap")
             upload_sprog_to_namecheap(self.tmpdir, self.passwords)
             print("Sending FCM message")

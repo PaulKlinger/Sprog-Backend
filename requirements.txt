@@ -1,6 +1,5 @@
 pysftp==0.2.8
 boto3
-pydrive
 matplotlib
 pandas
 prawcore>=0.6.0
