@@ -3,6 +3,8 @@ import shutil
 import subprocess
 import tempfile
 
+import boto3
+
 
 REPO_URL = "https://github.com/PaulKlinger/almoturg.com.git"
 REPO_BRANCH = "master"
@@ -11,9 +13,12 @@ REPO_BRANCH = "master"
 # almoturg.com repo). Paths match upload_sprog_to_namecheap, except
 # sprog.html is stored twice: it is served both at /sprog.html and at
 # /sprog/ (as sprog/index.html) on the old hosting.
+#
+# The two PDFs are deliberately NOT in this list: Workers Static Assets
+# caps files at 25 MiB and each PDF is ~45 MB, so they go to the R2
+# bucket instead (upload_pdfs_to_r2 below) and the Worker serves them
+# from there at their usual URLs.
 FILES = [
-    ("sprog.pdf", "content/sprog.pdf"),
-    ("small_sprog.pdf", "content/sprog_small.pdf"),
     ("sprog.rss", "content/sprog.rss"),
     ("sprog_no_context.rss", "content/sprog_no_context.rss"),
     ("poems.json", "content/poems.json"),
@@ -22,6 +27,14 @@ FILES = [
 ]
 HTML_SOURCE = "sprog.html"  # lives in tmpdir, not the working directory
 HTML_DESTINATIONS = ("content/sprog.html", "content/sprog/index.html")
+
+R2_BUCKET = "almoturg-sprog"
+# (local file, object key in the R2 bucket). The Worker serves these at
+# their usual URLs (/sprog.pdf, /sprog_small.pdf).
+R2_FILES = [
+    ("sprog.pdf", "sprog.pdf"),
+    ("small_sprog.pdf", "sprog_small.pdf"),
+]
 
 
 def _run(cmd, cwd, token=None):
@@ -40,7 +53,8 @@ def upload_sprog_to_github(tmpdir, passwords):
 
     Runs in parallel with the Namecheap FTP upload: the site is served
     from the repo (Cloudflare Workers Static Assets, same setup as
-    paulklinger.com), so each backend update keeps it current.
+    paulklinger.com), so each backend update keeps it current. The two
+    PDFs are not pushed here — see upload_pdfs_to_r2.
 
     Needs passwords["GITHUB_TOKEN"]: a token with contents write access
     to PaulKlinger/almoturg.com. If it is not set, this step is skipped
@@ -73,10 +87,14 @@ def upload_sprog_to_github(tmpdir, passwords):
 
         print("copying sprog files into repo")
         for source, dest in FILES:
-            shutil.copyfile(source, os.path.join(repo_dir, dest))
+            dest_path = os.path.join(repo_dir, dest)
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            shutil.copyfile(source, dest_path)
         html_source = os.path.join(tmpdir, HTML_SOURCE)
         for dest in HTML_DESTINATIONS:
-            shutil.copyfile(html_source, os.path.join(repo_dir, dest))
+            dest_path = os.path.join(repo_dir, dest)
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            shutil.copyfile(html_source, dest_path)
 
         _run(["git", "add", "-A"], cwd=repo_dir)
         status = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=repo_dir)
@@ -92,3 +110,37 @@ def upload_sprog_to_github(tmpdir, passwords):
     finally:
         if tmp_repo:
             shutil.rmtree(tmp_repo, ignore_errors=True)
+
+
+def upload_pdfs_to_r2(passwords):
+    """Upload the two PDFs to the Cloudflare R2 bucket.
+
+    The Worker serves them from R2 at their usual URLs (/sprog.pdf,
+    /sprog_small.pdf). They must not go into the repo, which Workers
+    Static Assets caps at 25 MiB per file.
+
+    Needs passwords["R2_ACCOUNT_ID"] (the Cloudflare account id, as
+    shown in the dashboard URL), passwords["R2_ACCESS_KEY_ID"] and
+    passwords["R2_SECRET_ACCESS_KEY"] — an R2 API token with Object
+    Read & Write on the almoturg-sprog bucket (Cloudflare dashboard:
+    R2 -> Manage R2 API Tokens -> Create API token). If any of them is
+    not set, this step is skipped (the repo push is unaffected).
+    """
+    account_id = passwords.get("R2_ACCOUNT_ID")
+    access_key = passwords.get("R2_ACCESS_KEY_ID")
+    secret_key = passwords.get("R2_SECRET_ACCESS_KEY")
+    if not (account_id and access_key and secret_key):
+        print("R2 credentials not set, skipping R2 upload")
+        return
+
+    s3 = boto3.resource(
+        "s3",
+        endpoint_url="https://{}.r2.cloudflarestorage.com".format(account_id),
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
+    )
+    bucket = s3.Bucket(R2_BUCKET)
+    for source, key in R2_FILES:
+        bucket.upload_file(source, key,
+                           ExtraArgs={"ContentType": "application/pdf"})
+    print("uploaded PDFs to R2 bucket {}".format(R2_BUCKET))

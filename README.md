@@ -17,8 +17,19 @@ Assets, same setup as paulklinger.com), so each update keeps the live
 site current. The GitHub push is best-effort — if it fails, the run
 still completes and the site still updates via FTP.
 
+The two PDFs are the exception: they are ~45 MB each, over Workers
+Static Assets' 25 MiB per-file limit, so they are not pushed to the
+repo. Instead they are uploaded to the Cloudflare R2 bucket
+`almoturg-sprog`, from which the Worker serves them at their usual
+URLs (`/sprog.pdf`, `/sprog_small.pdf`).
+
 Setup: add `GITHUB_TOKEN` to the `passwords` dict in `sprog_auth.py`
 (alongside the Namecheap and AWS credentials) — a token with contents
 write access to PaulKlinger/almoturg.com. Without it the GitHub step is
 skipped. Optionally set `GITHUB_REPO_DIR` to a persistent checkout of
-the repo to avoid cloning it fresh on every run.
+the repo to avoid cloning it fresh on every run. For the R2 step add
+`R2_ACCOUNT_ID` (the Cloudflare account id, as shown in the dashboard
+URL), `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` — an R2 API token
+with Object Read & Write on the `almoturg-sprog` bucket (Cloudflare
+dashboard: R2 -> Manage R2 API Tokens -> Create API token). Without
+them the R2 step is skipped.

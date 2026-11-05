@@ -4,7 +4,7 @@ import os.path
 from mako.template import Template
 
 from .namecheap_ftp_upload import upload_sprog_to_namecheap
-from .github_upload import upload_sprog_to_github
+from .github_upload import upload_sprog_to_github, upload_pdfs_to_r2
 from .s3_upload import upload_to_s3
 from .poems import update_poems, get_poems
 from .latex import create_pdf
@@ -59,6 +59,12 @@ class Sprog(object):
                 # so a GitHub failure must not break the run or the FCM
                 # notification below.
                 print("GitHub upload failed (Namecheap upload already done): {}".format(e))
+            print("Uploading PDFs to R2 (almoturg-sprog)")
+            try:
+                upload_pdfs_to_r2(self.passwords)
+            except Exception as e:
+                # Parallel upload only, same as the GitHub step above.
+                print("R2 upload failed (Namecheap upload already done): {}".format(e))
             print("Sending FCM message")
             send_last_poems_fcm(self.poems)
 
