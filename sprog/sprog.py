@@ -4,6 +4,7 @@ import os.path
 from mako.template import Template
 
 from .namecheap_ftp_upload import upload_sprog_to_namecheap
+from .github_upload import upload_sprog_to_github
 from .s3_upload import upload_to_s3
 from .poems import update_poems, get_poems
 from .latex import create_pdf
@@ -50,6 +51,14 @@ class Sprog(object):
             upload_to_s3(self.tmpdir, self.passwords)
             print("Uploading to Namecheap")
             upload_sprog_to_namecheap(self.tmpdir, self.passwords)
+            print("Uploading to GitHub (almoturg.com)")
+            try:
+                upload_sprog_to_github(self.tmpdir, self.passwords)
+            except Exception as e:
+                # Parallel upload only: the site still updates via FTP,
+                # so a GitHub failure must not break the run or the FCM
+                # notification below.
+                print("GitHub upload failed (Namecheap upload already done): {}".format(e))
             print("Sending FCM message")
             send_last_poems_fcm(self.poems)
 
