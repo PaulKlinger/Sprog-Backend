@@ -10,9 +10,8 @@ REPO_URL = "https://github.com/PaulKlinger/almoturg.com.git"
 REPO_BRANCH = "master"
 
 # (source relative to the backend working directory, destination in the
-# almoturg.com repo). Paths match upload_sprog_to_namecheap, except
-# sprog.html is stored twice: it is served both at /sprog.html and at
-# /sprog/ (as sprog/index.html) on the old hosting.
+# almoturg.com repo). sprog.html is stored twice: it is served both at
+# /sprog.html and at /sprog/ (as sprog/index.html).
 #
 # The two PDFs are deliberately NOT in this list: Workers Static Assets
 # caps files at 25 MiB and each PDF is ~45 MB, so they go to the R2
@@ -51,14 +50,14 @@ def _run(cmd, cwd, token=None):
 def upload_sprog_to_github(tmpdir, passwords):
     """Push the generated sprog files to the almoturg.com repo.
 
-    Runs in parallel with the Namecheap FTP upload: the site is served
+    Runs after the Amazon S3 upload: the site is served
     from the repo (Cloudflare Workers Static Assets, same setup as
     paulklinger.com), so each backend update keeps it current. The two
     PDFs are not pushed here — see upload_pdfs_to_r2.
 
     Needs passwords["GITHUB_TOKEN"]: a token with contents write access
     to PaulKlinger/almoturg.com. If it is not set, this step is skipped
-    (the Namecheap upload is unaffected). If passwords["GITHUB_REPO_DIR"]
+    (the S3 upload is unaffected). If passwords["GITHUB_REPO_DIR"]
     is set, that persistent checkout is reused (pulled first) instead of
     cloning the repo fresh into a temporary directory each run.
     """
@@ -102,8 +101,7 @@ def upload_sprog_to_github(tmpdir, passwords):
             print("no changes to push to GitHub")
             return
         _run(["git", "commit", "-m",
-              "Update sprog files\n\nAutomated sync from Sprog-Backend, "
-              "in parallel with the Namecheap FTP upload."],
+              "Update sprog files\n\nAutomated sync from Sprog-Backend."],
              cwd=repo_dir)
         _run(["git", "push", "origin", REPO_BRANCH], cwd=repo_dir)
         print("pushed sprog files to GitHub")

@@ -58,10 +58,13 @@ this folder (or the repo) holds a secret — secrets live on the machine only
 
 ## Uploads
 
-- Each run uploads to Amazon S3 and to Namecheap (SFTP, public_html). The
+- Each run uploads to Amazon S3. The
   GitHub/R2 upload (live site) is in PR #5, not yet merged — until it is
-  merged and the R2 + GitHub secrets are added to sprog_auth.py on the
-  machine, runs do not update almoturg.com.
+  merged and the R2 + GitHub secrets are added to the `sprog` secret in
+  Secrets Manager, runs do not update almoturg.com. (The old Namecheap
+  SFTP upload was dropped when the hosting expired: the site no longer
+  uses it, and a dead upload step could fail the run before the
+  GitHub/R2 steps.)
 - The FCM notification step at the end of each run fails with a 404 (legacy
   FCM API is dead; the Android app is gone). It is dead weight and should be
   removed (GitHub PR).

@@ -9,13 +9,12 @@ In addition to the Python packages specified in requirements.txt the following e
 * [mogrify](http://www.imagemagick.org/script/mogrify.php) (part of [ImageMagick](http://www.imagemagick.org/))
 ## Uploads
 
-Each run uploads the generated files to Namecheap (SFTP, `public_html`)
-and to Amazon S3. It also pushes them to the
-[almoturg.com repo](https://github.com/PaulKlinger/almoturg.com) in
-parallel: the site is served from that repo (Cloudflare Workers Static
-Assets, same setup as paulklinger.com), so each update keeps the live
-site current. The GitHub push is best-effort — if it fails, the run
-still completes and the site still updates via FTP.
+Each run uploads the generated files to Amazon S3 and pushes them to the
+[almoturg.com repo](https://github.com/PaulKlinger/almoturg.com): the site
+is served from that repo (Cloudflare Workers Static Assets, same setup as
+paulklinger.com), so each update keeps the live site current. The GitHub
+push is best-effort — if it fails, the run still completes, but the live
+site won't update until the next successful run.
 
 The two PDFs are the exception: they are ~45 MB each, over Workers
 Static Assets' 25 MiB per-file limit, so they are not pushed to the
