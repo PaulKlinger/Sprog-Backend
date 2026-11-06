@@ -3,7 +3,7 @@ import datetime
 import os.path
 from mako.template import Template
 
-from .namecheap_ftp_upload import upload_sprog_to_namecheap
+from .github_upload import upload_sprog_to_github, upload_pdfs_to_r2
 from .s3_upload import upload_to_s3
 from .poems import update_poems, get_poems
 from .latex import create_pdf
@@ -49,8 +49,18 @@ class Sprog(object):
         if upload:
             print("Uploading to Amazon S3")
             upload_to_s3(self.tmpdir)
-            print("Uploading to Namecheap")
-            upload_sprog_to_namecheap(self.tmpdir, self.passwords)
+            print("Uploading to GitHub (almoturg.com)")
+            try:
+                upload_sprog_to_github(self.tmpdir, self.passwords)
+            except Exception as e:
+                # Best-effort only: a failure here must not break the run.
+                print("GitHub upload failed (S3 upload already done): {}".format(e))
+            print("Uploading PDFs to R2 (almoturg-sprog)")
+            try:
+                upload_pdfs_to_r2(self.passwords)
+            except Exception as e:
+                # Best-effort only, same as the GitHub step above.
+                print("R2 upload failed (S3 upload already done): {}".format(e))
 
     def _load_update_poems(self, noupdate=False):
         self.poems = load_poems_json("poems.json")
