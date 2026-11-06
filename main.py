@@ -1,6 +1,6 @@
 from sprog.sprog import Sprog
 
-from sprog_auth import passwords
+from sprog.secrets import load_passwords
 
 user_name = "Poem_for_your_sprog"
 latex_template_filename = "templates/sprog.tex.mako"
@@ -13,5 +13,5 @@ if __name__ == "__main__":
     sprog = Sprog(user_name=user_name,
                   latex_template_filename=latex_template_filename, html_template_filename=html_template_filename,
                   rss_template_filename=rss_template_filename,
-                  tmpdir=tmpdir, latexfile=latexfile, passwords=passwords)
+                  tmpdir=tmpdir, latexfile=latexfile, passwords=load_passwords())
     sprog.run()

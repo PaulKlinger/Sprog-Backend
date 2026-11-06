@@ -10,7 +10,6 @@ from .latex import create_pdf
 from .json_store import load_poems_json, save_poems_json
 from .stats_n_graphs import make_graphs
 from .utility import suffix_strftime
-from .send_fcm import send_last_poems_fcm
 from .rss_feed import create_rss_feeds
 
 
@@ -19,7 +18,9 @@ class Sprog(object):
                  latex_template_filename: str, html_template_filename: str, rss_template_filename: str,
                  tmpdir: str, latexfile: str, passwords: dict):
         self.user_name = user_name
-        self.reddit = praw.Reddit()
+        self.reddit = praw.Reddit(client_id=passwords["PRAW_CLIENT_ID"],
+                                  client_secret=passwords["PRAW_CLIENT_SECRET"],
+                                  user_agent=passwords["PRAW_USER_AGENT"])
         self.user = self.reddit.redditor(user_name)
         self.tmpdir = tmpdir
         self.latexfile = latexfile
@@ -47,11 +48,9 @@ class Sprog(object):
         self._save_poems()
         if upload:
             print("Uploading to Amazon S3")
-            upload_to_s3(self.tmpdir, self.passwords)
+            upload_to_s3(self.tmpdir)
             print("Uploading to Namecheap")
             upload_sprog_to_namecheap(self.tmpdir, self.passwords)
-            print("Sending FCM message")
-            send_last_poems_fcm(self.poems)
 
     def _load_update_poems(self, noupdate=False):
         self.poems = load_poems_json("poems.json")

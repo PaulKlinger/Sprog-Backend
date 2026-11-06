@@ -10,11 +10,10 @@ def datetime_to_http_date(dt):
     return format_date_time(stamp)
 
 
-def upload_to_s3(tmpdir, passwords):
+def upload_to_s3(tmpdir):
     cache_expire = datetime_to_http_date(datetime.now()+timedelta(hours=11))
-    s3 = boto3.resource("s3", "eu-west-1",
-                        aws_access_key_id=passwords["AWS_ACCESS_KEY"],
-                        aws_secret_access_key=passwords["AWS_SECRET_KEY"],)
+    # Credentials come from the instance's IAM role.
+    s3 = boto3.resource("s3", "eu-west-1")
     bucket = s3.Bucket("almoturg.com")
     bucket.upload_file("sprog.pdf", "sprog.pdf",
                        ExtraArgs={'ContentType': 'application/pdf',
