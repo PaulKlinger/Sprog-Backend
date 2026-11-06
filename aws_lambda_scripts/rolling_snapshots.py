@@ -12,7 +12,7 @@ def lambda_handler(event, context):
     print("AWS snapshot backups started at %s...\n" % datetime.now())
     ec = boto3.client('ec2')
     snapshot = ec.create_snapshot(
-            VolumeId="vol-0e3fe6bd947540db4",
+            VolumeId="vol-04507e8239e10fff9",
         )
     print(snapshot)
     if snapshot['State'] != "error":
