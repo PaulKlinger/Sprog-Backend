@@ -1,4 +1,4 @@
-# Secrets — live on the host only, never committed
+# Secrets — live in AWS Secrets Manager, never on disk, never committed
 sprog_auth.py
 praw.ini
 # Run state — lives in the checkout on the host, not in the repo

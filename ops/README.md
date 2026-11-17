@@ -1,8 +1,8 @@
 # Sprog host operations
 
 How the backend runs, and how to rebuild the host from scratch. Nothing in
-this folder (or the repo) holds a secret — secrets live on the machine only
-(see below).
+this folder (or the repo) holds a secret — secrets live in AWS Secrets
+Manager (secret `sprog`, eu-west-1), never on the machine (see below).
 
 ## What runs where
 
@@ -49,32 +49,38 @@ this folder (or the repo) holds a secret — secrets live on the machine only
 - State lives in the checkout directory and is NOT in this repo: poems.json
   (4,147 entries), deleted_poems.json. Copy them across when rebuilding; the
   run updates them in place.
-- Secrets live on the machine only, never in this repo (see .gitignore):
-  `sprog_auth.py` (`passwords` dict: AWS_ACCESS_KEY, AWS_SECRET_KEY,
-  NAMECHEAP_SERVER, NAMECHEAP_USERNAME, NAMECHEAP_PASSWORD, NAMECHEAP_PORT,
-  FCM_KEY; plus GITHUB_TOKEN and R2_ACCOUNT_ID / R2_ACCESS_KEY_ID /
-  R2_SECRET_ACCESS_KEY once the R2 upload is enabled) and `praw.ini`
-  ([DEFAULT]: client_id, client_secret, user_agent).
+- Secrets live in AWS Secrets Manager, never in this repo and never on disk:
+  the `sprog` secret holds `PRAW_CLIENT_ID`, `PRAW_CLIENT_SECRET`,
+  `PRAW_USER_AGENT`, `GITHUB_TOKEN`, `R2_ACCOUNT_ID`,
+  `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` (plus the legacy
+  `NAMECHEAP_*` keys, which stay in the secret unused). The code reads them
+  at startup via `sprog/secrets.py`, using the instance IAM role, so no
+  secret ever lives on disk. The old files `sprog_auth.py` and `praw.ini`
+  were deleted from the host on 16 Nov 2026 once the migration was done —
+  do not recreate them.
 
 ## Uploads
 
-- Each run uploads to Amazon S3. The
-  GitHub/R2 upload (live site) is in PR #5, not yet merged — until it is
-  merged and the R2 + GitHub secrets are added to the `sprog` secret in
-  Secrets Manager, runs do not update almoturg.com. (The old Namecheap
-  SFTP upload was dropped when the hosting expired: the site no longer
-  uses it, and a dead upload step could fail the run before the
-  GitHub/R2 steps.)
-- The FCM notification step at the end of each run fails with a 404 (legacy
-  FCM API is dead; the Android app is gone). It is dead weight and should be
-  removed (GitHub PR).
+- Each run uploads to Amazon S3, pushes the site files to the
+  [almoturg.com repo](https://github.com/PaulKlinger/almoturg.com) (GitHub
+  step, merged 6 Nov 2026) and uploads the two ~45 MB PDFs to the
+  Cloudflare R2 bucket `almoturg-sprog`. The GitHub and R2 steps are
+  best-effort — if either fails, the run still completes, but the live site
+  won't update until the next successful run. (The old Namecheap SFTP
+  upload was dropped when the hosting expired: the site no longer uses it,
+  and a dead upload step could fail the run before the GitHub/R2 steps.)
+- The FCM notification step was removed on 6 Nov 2026 (the legacy FCM API
+  is dead and the Android app is gone).
 
 ## Rebuilding from scratch
 
 1. Launch the instance as above; install the packages; create the venv and
    install requirements.txt.
-2. Clone this repo to /home/ec2-user/sprog; copy poems.json,
-   deleted_poems.json, sprog_auth.py and praw.ini from the old host.
+2. Clone this repo to /home/ec2-user/sprog; copy poems.json and
+   deleted_poems.json from the old host. Do NOT copy `sprog_auth.py` or
+   `praw.ini` — they no longer exist; secrets come from the `sprog` secret
+   in Secrets Manager (see above), and the instance IAM role needs read
+   access to it.
 3. Install `ops/run_sprog.sh` at /home/ec2-user/run_sprog.sh; add the
    @reboot crontab line; enable termination protection.
 4. Create/update the two Lambdas from `aws_lambda_scripts/` (Python 3.12 —
@@ -82,20 +88,23 @@ this folder (or the repo) holds a secret — secrets live on the machine only
    two EventBridge rules with the cron expressions above.
 5. Test with a manual start: the machine should boot, run, upload, and shut
    itself down in ~25 minutes. Then stop it and let the schedule take over.
-6. Keep the old host stopped as a fallback until a few scheduled runs have
-   succeeded.
+6. There is no fallback host any more: the old host was retired on
+   16 Nov 2026 (see below), so verify a few scheduled runs before relying
+   on the new one.
 
 ## Retired host
 
 - `i-00c8bff4207d0e201` ("Sprog-old-AL1"), t2.nano, Amazon Linux 1 (AMI
   2018.03, Python 3.5, TeX Live 2016), volume `vol-0e3fe6bd947540db4` (5 GiB
-  gp2). Stopped, termination protection on. Its checkout pulled from
-  Bitbucket (`git@bitbucket.org:Almoturg/sprog.git`) at fd238ee (2021) —
-  GitHub PRs never reached it. 217 snapshots of its volume exist. Retire it
-  (and the snapshots) after a few good runs on the new host.
-- The inspection copy volume `vol-0011c2955066d8ffe` (from
-  snap-0be737d83fb7cfb0e) is still attached to the new host as /dev/sdf —
-  detach and delete it after the first good scheduled run.
+  gp2). Its checkout pulled from Bitbucket
+  (`git@bitbucket.org:Almoturg/sprog.git`) at fd238ee (2021) — GitHub PRs
+  never reached it.
+- Retired 16 Nov 2026: the instance was terminated, its root volume
+  deleted, and all 214 snapshots deleted (the last one via deregistering
+  its AMI). The inspection copy volume `vol-0011c2955066d8ffe` (from
+  snap-0be737d83fb7cfb0e) was also deleted. Nothing of the old host
+  remains. What is left in the account is just the new Sprog's root volume
+  (`vol-04507e8239e10fff9`) and its two snapshots.
 
 ## Quirks worth knowing
 
